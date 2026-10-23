@@ -1,0 +1,71 @@
+{
+  "rules": {
+    "games": {
+      "$code": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+    "rooms": {
+      "$code": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+    "secrets": {
+      "$code": {
+        "$uid": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    "profiles": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "usernames": {
+      "$name": {
+        ".read": "auth != null",
+        ".write": "auth != null && ((!data.exists() && newData.val() === auth.uid) || data.val() === auth.uid)"
+      }
+    },
+    "status": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "friendRequests": {
+      "$to": {
+        ".read": "auth != null && auth.uid === $to",
+        "$from": {
+          ".write": "auth != null && (auth.uid === $from || auth.uid === $to)"
+        }
+      }
+    },
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        "friends": {
+          "$fid": {
+            ".write": "auth != null && (auth.uid === $uid || auth.uid === $fid)"
+          }
+        },
+        "games": {
+          "$code": {
+            ".write": "auth != null && (auth.uid === $uid || root.child('users/' + $uid + '/friends/' + auth.uid).exists())"
+          }
+        },
+        "escapes": {
+          "$code": {
+            ".write": "auth != null && (auth.uid === $uid || root.child('users/' + $uid + '/friends/' + auth.uid).exists())"
+          }
+        }
+      }
+    }
+  }
+}
