@@ -85,6 +85,9 @@ input:focus{border-color:var(--accent)}
 .overlay .box{background:linear-gradient(180deg,#352457,#241640);border:1px solid var(--line);border-radius:22px;padding:18px;max-width:440px;width:100%;max-height:92vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.5)}
 .overlay .box.wide{max-width:520px}
 .overlay .btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:12px}
+.overlay .btns.stack{flex-direction:column;align-items:stretch}
+.sub.tiny{font-size:.74rem;opacity:.85;margin-top:1px}
+.item .more{flex:none}.item .more svg{width:22px;height:22px}
 .srow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
 .seg{display:flex;background:rgba(0,0,0,.25);border-radius:14px;padding:4px;gap:4px}
 .seg button{flex:1;background:transparent;color:var(--muted);padding:9px 6px;box-shadow:none}
@@ -320,7 +323,7 @@ canvas{display:block;width:100%;height:100%}
 <script>
 (() => {
 'use strict';
-const VERSION = '1.1';
+const VERSION = '1.2';
 const firebaseConfig = window.FIREBASE_CONFIG || {};
 const $ = (s, el) => (el || document).querySelector(s);
 const $$ = (s, el) => [...(el || document).querySelectorAll(s)];
@@ -340,7 +343,7 @@ function toast(msg, ms) { const t = $('#toast'); t.textContent = msg; t.classLis
 function show(name) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === 'screen-' + name)); if (name === 'game') setTimeout(resize, 0); }
 function overlay(html, btns, opts) {
   const o = $('#overlay'); $('#ov-content').innerHTML = html;
-  o.querySelector('.box').classList.toggle('wide', !!(opts && opts.wide));
+  o.querySelector('.box').classList.toggle('wide', !!(opts && opts.wide)); $('#ov-btns').classList.toggle('stack', !!(opts && opts.stack));
   const b = $('#ov-btns'); b.innerHTML = '';
   (btns || []).forEach(x => { const btn = document.createElement('button'); btn.type = 'button'; btn.className = x.cls || 'primary'; btn.innerHTML = x.label; btn.onclick = x.act; b.appendChild(btn); });
   o.classList.remove('hidden');
@@ -376,6 +379,7 @@ const I = {
   send: SV('<path d="M3 11.5 21 3l-8 18-2.5-7.5z"/><path d="M10.5 13.5 21 3"/>'),
   list: SV('<path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/>'),
   back: SV('<path d="M15 5l-7 7 7 7"/>'),
+  more: SV('<circle cx="5" cy="12" r="1.7" fill="currentColor"/><circle cx="12" cy="12" r="1.7" fill="currentColor"/><circle cx="19" cy="12" r="1.7" fill="currentColor"/>'),
   man: SV('<circle cx="12" cy="5" r="2.6"/><path d="M12 8v7M12 10l-4 3M12 10l4 3M12 15l-3 6M12 15l3 6"/>'),
   friends: SV('<circle cx="9" cy="7" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3 20c0-4 3-6 6-6s6 2 6 6M15 20c0-3 2-5 5-5"/>'),
   play: SV('<path d="M7 4.5v15l12-7.5z"/>'),
@@ -452,13 +456,17 @@ const lobby = { refs: [], runs: {}, runRefs: {}, friends: {}, requests: {}, pres
 const WORLD_H = 720, FLOOR_Y = 520, WALK_MIN = 556, WALK_MAX = 700;
 const cv = $('#cv'), cx = cv.getContext('2d');
 let CW = 300, CH = 600, S = 1, OX = 0, OY = 0, DPR = 1;
-let BOT_INSET = 64;   // the chat bar; the world is fitted above it so no part of the floor sits under it
+let BOT_INSET = 64, TOP_INSET = 52;   // the chat bar at the bottom, the room name and clock at the top
+// The room is fitted to the screen's width (at least 480 units across) and stands right on the chat bar,
+// so the whole bottom of the screen is floor you can tap. Any spare height goes to the top, where the
+// room name, the clock and the chat lines live, clear of the room itself.
 function resize() {
   const st = $('#stage'); CW = st.clientWidth || window.innerWidth; CH = st.clientHeight || window.innerHeight; DPR = Math.min(2, window.devicePixelRatio || 1);
   cv.width = Math.round(CW * DPR); cv.height = Math.round(CH * DPR); cv.style.width = CW + 'px'; cv.style.height = CH + 'px';
-  const bar = document.querySelector('#screen-game .bottombar'); if (bar && bar.offsetHeight) BOT_INSET = bar.offsetHeight;
-  const avail = Math.max(240, CH - BOT_INSET);
-  S = Math.min(avail / WORLD_H, CW / 480); OY = Math.max(0, (avail - WORLD_H * S) / 2); OX = 0;
+  const bar = document.querySelector('#screen-game .bottombar'), hud = document.querySelector('#screen-game .hud');
+  if (bar && bar.offsetHeight) BOT_INSET = bar.offsetHeight; if (hud && hud.offsetHeight) TOP_INSET = hud.offsetHeight;
+  S = Math.min(Math.max(200, CH - BOT_INSET - TOP_INSET) / WORLD_H, CW / 480);
+  OY = CH - BOT_INSET - WORLD_H * S; OX = 0;
   bgCache = null;
 }
 window.addEventListener('resize', resize);
@@ -492,20 +500,24 @@ let bgCache = null;
 // screen's own resolution) and copied each frame. Twinkling stars, turning gears and the fairy
 // lights are drawn live on top, and only the part in view.
 function drawBackdrop(c, room, t, camX, viewW) {
-  const W = room.w, k = S * DPR, PADX = 120, PADT = 200, PADB = 300;
-  if (!bgCache || bgCache.room !== room || bgCache.k !== k) {
-    const bc = document.createElement('canvas'); bc.width = Math.ceil((W + PADX * 2) * k); bc.height = Math.ceil((WORLD_H + PADT + PADB) * k);
+  const W = room.w, PADX = 80;
+  if (!bgCache || bgCache.room !== room) {
+    const PADT = Math.ceil(Math.max(0, OY) / S) + 40, PADB = Math.ceil(BOT_INSET / S) + 40, ww = W + PADX * 2, wh = WORLD_H + PADT + PADB;
+    // the screen's own resolution, but never a canvas so big a phone or tablet refuses it
+    const k = Math.min(S * DPR, 2, Math.sqrt(12e6 / (ww * wh)));
+    const bc = document.createElement('canvas'); bc.width = Math.ceil(ww * k); bc.height = Math.ceil(wh * k);
     const b = bc.getContext('2d'); b.setTransform(k, 0, 0, k, PADX * k, PADT * k);
     drawBackdropStatic(b, room, -PADX, W + PADX * 2);
-    bgCache = { room, k, cv: bc };
+    bgCache = { room, k, cv: bc, PADT, PADB };
   }
+  const { k, PADT, PADB } = bgCache;
   // plain colour above and below the cached strip (only a very tall, narrow screen ever sees it)
   c.fillStyle = room.pal.wall1; c.fillRect(camX - 50, -PADT - 900, viewW + 100, 901); c.fillStyle = room.pal.floor2; c.fillRect(camX - 50, WORLD_H + PADB - 1, viewW + 100, 900);
   // copy the slice in view (the room is clamped to the camera, so the view never leaves it)
   const x0 = Math.max(-PADX, camX - 50), x1 = Math.min(W + PADX, camX + viewW + 50);
   if (x1 > x0) c.drawImage(bgCache.cv, (x0 + PADX) * k, 0, (x1 - x0) * k, bgCache.cv.height, x0, -PADT, x1 - x0, WORLD_H + PADT + PADB);
   const p = room.pal;
-  if (room.deco === 'stars') { const rnd = mulberry32(7); for (let i = 0; i < 90; i++) { const x = rnd() * W, y = rnd() * (FLOOR_Y - 120), r = 1 + rnd() * 2; if (x < camX - 10 || x > camX + viewW + 10) continue; const tw = 0.5 + 0.5 * Math.sin(t * 2 + i); c.fillStyle = `rgba(255,255,255,${0.35 + 0.5 * tw})`; c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill(); } }
+  if (room.deco === 'stars') { const rnd = mulberry32(7); for (let i = 0; i < 130; i++) { const x = rnd() * W, y = -320 + rnd() * (FLOOR_Y + 200), r = 1 + rnd() * 2; if (x < camX - 10 || x > camX + viewW + 10) continue; const tw = 0.5 + 0.5 * Math.sin(t * 2 + i); c.fillStyle = `rgba(255,255,255,${0.35 + 0.5 * tw})`; c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill(); } }
   else if (room.deco === 'gears') { const rnd = mulberry32(3); for (let i = 0; i < 9; i++) { const x = rnd() * W, y = 40 + rnd() * 300, r = 30 + rnd() * 50, n = 8 + Math.floor(rnd() * 6), dir = i % 2 ? 1 : -1; if (x + r < camX || x - r > camX + viewW) continue; c.save(); c.translate(x, y); c.rotate(t * 0.3 * dir); c.fillStyle = rgba(p.trim, 0.16); c.beginPath(); for (let k2 = 0; k2 < n * 2; k2++) { const a = k2 / (n * 2) * Math.PI * 2, rad = k2 % 2 ? r : r * 0.8; c.lineTo(Math.cos(a) * rad, Math.sin(a) * rad); } c.closePath(); c.fill(); c.beginPath(); c.arc(0, 0, r * 0.3, 0, Math.PI * 2); c.fillStyle = rgba(p.wall2, 0.6); c.fill(); c.restore(); } }
   if (room.lights !== false) { const xs = Math.max(30, Math.floor((camX - 30) / 60) * 60 + 30), xe = Math.min(W, camX + viewW + 30); for (let x = xs; x < xe; x += 60) { const on = Math.sin(t * 3 + x / 60) > -0.2; const col = ['#ffd166', '#ff6b9d', '#3ddcc7', '#9d7bff'][Math.round(x / 60) % 4]; if (on) glow(c, x, 100, 22, col, 0.5); circ(c, x, 100, 6, on ? col : '#555', { outline: false }); } }
 }
@@ -514,7 +526,7 @@ function drawBackdropStatic(c, room, camX, viewW) {
   // wall (drawn beyond the room on both sides so a wide screen never shows bare canvas)
   const gw = c.createLinearGradient(0, -400, 0, FLOOR_Y); gw.addColorStop(0, p.wall1); gw.addColorStop(1, p.wall2);
   c.fillStyle = gw; c.fillRect(camX - 50, -400, viewW + 100, FLOOR_Y + 400);
-  if (room.deco === 'stripes') { c.fillStyle = rgba(p.trim, 0.14); for (let x = -80; x < W + 80; x += 90) c.fillRect(x, -400, 45, FLOOR_Y + 400); }
+  if (room.deco === 'stripes') { c.fillStyle = rgba(p.trim, 0.14); for (let x = -80; x < W + 80; x += 90) c.fillRect(x, -1200, 45, FLOOR_Y + 1200); }
   else if (room.deco === 'tent') { c.fillStyle = rgba(p.trim, 0.16); for (let x = -80; x < W + 80; x += 160) { c.beginPath(); c.moveTo(x, FLOOR_Y); c.lineTo(x + 80, -400); c.lineTo(x + 160, FLOOR_Y); c.closePath(); c.fill(); } }
   else if (room.deco === 'dots') { c.fillStyle = rgba(p.trim, 0.18); for (let x = 20; x < W; x += 70) for (let y = 30; y < FLOOR_Y - 40; y += 70) { c.beginPath(); c.arc(x + (y / 70 % 2) * 35, y, 7, 0, Math.PI * 2); c.fill(); } }
   else if (room.deco === 'bricks') { c.strokeStyle = rgba(p.trim, 0.22); c.lineWidth = 2; for (let y = 0; y < FLOOR_Y; y += 36) { c.beginPath(); c.moveTo(-50, y); c.lineTo(W + 50, y); c.stroke(); for (let x = (y / 36 % 2) * 50; x < W + 50; x += 100) { c.beginPath(); c.moveTo(x, y); c.lineTo(x, y + 36); c.stroke(); } } }
@@ -690,9 +702,13 @@ function drawPerson(c, p, t) {
   // name tag and speech bubble
   const top = p.y - 150 * dsc(p.y);
   if (p.bubble && t < p.bubbleUntil) {
-    const bx = p.x + 26, by = top - 34 + Math.sin(t * 5) * 1.5;
-    rr(c, bx - 17, by - 9, 34, 18, 9); c.fillStyle = 'rgba(255,255,255,.95)'; c.fill(); c.beginPath(); c.moveTo(bx - 10, by + 8); c.lineTo(bx - 2, by + 8); c.lineTo(bx - 11, by + 15); c.closePath(); c.fill();
-    for (let i = -1; i <= 1; i++) { const on = Math.floor(t * 4) % 3 === i + 1; c.beginPath(); c.arc(bx + i * 9, by, on ? 3.2 : 2.4, 0, Math.PI * 2); c.fillStyle = on ? '#1b1134' : '#8a86a0'; c.fill(); }
+    c.save(); c.globalAlpha = clamp((p.bubbleUntil - t) / 0.4, 0, 1);
+    c.font = '600 15px Nunito, sans-serif'; const w = Math.min(260, c.measureText(p.bubble).width + 22); const lines = wrapText(c, p.bubble, 240);
+    // kept on screen near the edges, with the tail still pointing at the speaker
+    const vl = G.camX + 6, vr = G.camX + CW / S - 6, bx = clamp(p.x, vl + w / 2, Math.max(vl + w / 2, vr - w / 2)), tx = clamp(p.x, bx - w / 2 + 16, bx + w / 2 - 16);
+    const h = 14 + lines.length * 19; rr(c, bx - w / 2, top - 24 - h, w, h, 12); c.fillStyle = 'rgba(255,255,255,.95)'; c.fill(); c.beginPath(); c.moveTo(tx - 6, top - 24); c.lineTo(tx + 6, top - 24); c.lineTo(clamp(p.x, tx - 10, tx + 10), top - 14); c.closePath(); c.fill();
+    lines.forEach((l, i) => txt(c, l, bx, top - 24 - h + 16 + i * 19, 15, '#1b1134', 'center', 'Nunito, sans-serif', 600));
+    c.restore();
   }
   if (p.name) { c.font = '700 13px Fredoka, sans-serif'; const w = c.measureText(p.name).width + 16; rr(c, p.x - w / 2, top - 18, w, 20, 10); c.fillStyle = rgba(p.pal.col, 0.85); c.fill(); txt(c, p.name, p.x, top - 8, 13, '#1b1134'); }
 }
@@ -713,7 +729,9 @@ const lvState = () => ((G.run && G.run.lv) || {})[G.level] || {};
 const ost = id => (lvState().obj || {})[id] || {};
 const myInv = () => Object.keys(((G.run && G.run.players) || {})[G.me.uid] && G.run.players[G.me.uid].inv || {});
 const hasItem = id => myInv().includes(id);
-const partnerUid = () => Object.keys((G.run && G.run.players) || {}).find(u => u !== G.me.uid) || null;
+const otherSeatUid = (r, me) => { const s = (r && r.seats) || {}; return s.A === me ? (s.B || null) : s.B === me ? (s.A || null) : null; };
+const seatedIn = (r, uid) => !!(r && !r.ended && r.seats && (r.seats.A === uid || r.seats.B === uid));
+const partnerUid = () => otherSeatUid(G.run, G.me.uid);
 const partnerHere = () => { const u = partnerUid(); const p = u && G.run.players[u]; return !!(p && p.lv === G.level && p.here); };
 const seatOf = uid => { const s = (G.run && G.run.seats) || {}; return s.A === uid ? 'A' : s.B === uid ? 'B' : null; };
 // Does this object exist for me right now?
@@ -753,12 +771,22 @@ function taskDone(o) {
   const st = ost(o.id), w = taskWhen(o);
   if (w === 'taken') return st.s === 'taken'; if (w === 'solved') return st.s === 'solved' || st.s === 'open' || st.s === 'on'; if (w === 'open') return st.s === 'open' || st.entered; if (w === 'held') return !!st.wasHeld; if (w === 'used') return !!st.used || st.s === 'open' || st.s === 'solved'; if (w === 'on') return st.s === 'on' || st.v === true; if (w === 'read') return !!st.read; return false;
 }
+// Things from rooms you have finished are packed away: the item column shows what this room gives or uses.
+const roomItemSets = new Map();
+function roomItems(room) {
+  if (roomItemSets.has(room)) return roomItemSets.get(room);
+  const set = new Set();
+  const walk = v => { if (!v || typeof v === 'function') return; if (typeof v === 'string') { const m = /^give:([a-z_]+)/.exec(v); if (m) set.add(m[1]); return; } if (Array.isArray(v)) { v.forEach(walk); return; } if (typeof v === 'object') Object.keys(v).forEach(k => { if (k === 'use' && v.use && typeof v.use === 'object') Object.keys(v.use).forEach(it => set.add(it)); if (k === 'take' && typeof v.take === 'string') set.add(v.take); walk(v[k]); }); };
+  room.objects.forEach(walk);
+  if (room.dark) { set.add('lantern'); set.add('torch'); }
+  roomItemSets.set(room, set); return set;
+}
 function tasks() { return (G.room ? G.room.objects : []).filter(o => o.task); }
 function taskCount() { const ts = tasks(); return { done: ts.filter(taskDone).length, total: ts.length }; }
 
 /* ---------- store: the shared run through Firebase, or a local one when alone ---------- */
 function makeRunStore(code) {
-  let ref = null, cb = null, holdTimer = 0;
+  let ref = null, cb = null, holdTimer = 0, connRef = null, connCb = null;
   return {
     code: () => code,
     async create(partnerUid, partnerName) {
@@ -769,21 +797,68 @@ function makeRunStore(code) {
       await db.ref().update(upd); return code;
     },
     async join(c) {
-      c = String(c || '').toUpperCase().trim(); const snap = await db.ref('rooms/' + c).once('value'); if (!snap.exists()) throw new Error('No escape with that code.');
-      const r = snap.val(), me = ctx.uid, upd = {};
-      if (r.seats.A !== me && r.seats.B !== me) { if (r.seats.B) throw new Error('That escape already has two players.'); upd[`rooms/${c}/seats/B`] = me; upd[`rooms/${c}/players/${me}`] = { name: ctx.name, seat: 'B', x: 240, y: 660, f: 1, lv: r.level || 1, pal: palIndex(), inv: {} }; }
-      else if (!r.players || !r.players[me]) upd[`rooms/${c}/players/${me}`] = { name: ctx.name, seat: r.seats.A === me ? 'A' : 'B', x: 240, y: 660, f: 1, lv: r.level || 1, pal: palIndex(), inv: {} };
-      upd[`users/${me}/escapes/${c}`] = TS(); upd[`rooms/${c}/players/${me}/name`] = ctx.name; upd[`rooms/${c}/players/${me}/pal`] = palIndex();
+      c = String(c || '').toUpperCase().trim(); const snap = await db.ref('rooms/' + c).once('value'); const r = snap.val();
+      if (!r || !r.seats) throw new Error('No escape with that code.');
+      if (r.ended) throw new Error('That escape has been ended.');
+      const me = ctx.uid, upd = {}, p = `rooms/${c}/players/${me}`;
+      if (r.seats.A !== me && r.seats.B !== me) {
+        const free = !r.seats.A ? 'A' : !r.seats.B ? 'B' : null; if (!free) throw new Error('That escape already has two players.');
+        upd[`rooms/${c}/seats/${free}`] = me; upd[`rooms/${c}/left/${free}`] = null;
+        upd[p] = { name: ctx.name, seat: free, x: 240, y: 660, f: 1, lv: r.level || 1, pal: palIndex(), inv: {} };
+      } else if (!r.players || !r.players[me]) upd[p] = { name: ctx.name, seat: r.seats.A === me ? 'A' : 'B', x: 240, y: 660, f: 1, lv: r.level || 1, pal: palIndex(), inv: {} };
+      else { upd[p + '/name'] = ctx.name; upd[p + '/pal'] = palIndex(); }
+      upd[`users/${me}/escapes/${c}`] = TS();
       await db.ref().update(upd); code = c;
     },
-    subscribe(fn) { ref = db.ref('rooms/' + code); cb = ref.on('value', s => fn(s.val()), err => toast(friendlyDb(err))); const here = db.ref(`rooms/${code}/players/${ctx.uid}/here`); here.set(true); here.onDisconnect().set(false); },
-    unsubscribe() { if (ref) ref.off('value', cb); ref = null; clearInterval(holdTimer); if (db && code) db.ref(`rooms/${code}/players/${ctx.uid}/here`).set(false).catch(() => {}); },
+    // Live updates, plus "I'm in the room" for my partner. Phones drop the connection when the screen
+    // locks, and Firebase marks you away when that happens, so this marks you back in on reconnect.
+    subscribe(fn) {
+      ref = db.ref('rooms/' + code); let last;
+      cb = ref.on('value', s => { last = s.val(); fn(last); }, err => toast(friendlyDb(err)));
+      const here = db.ref(`rooms/${code}/players/${ctx.uid}/here`);
+      const mark = () => { here.onDisconnect().set(false); here.set(true).catch(() => {}); };
+      mark();
+      let conn = null; connRef = db.ref('.info/connected');
+      connCb = connRef.on('value', s => { const c = s.val() === true; if (c && conn === false && (last === undefined || seatedIn(last, ctx.uid))) mark(); conn = c; });
+    },
+    // silent: the escape was ended or quit, so write nothing that could bring a scrap of it back
+    unsubscribe(silent) {
+      if (ref) ref.off('value', cb); ref = null; if (connRef) connRef.off('value', connCb); connRef = null; clearInterval(holdTimer);
+      if (db && code) { const here = db.ref(`rooms/${code}/players/${ctx.uid}/here`); try { here.onDisconnect().cancel(); } catch (e) { /* offline */ } if (!silent) here.set(false).catch(() => {}); }
+    },
     update(upd) { return db.ref('rooms/' + code).update(upd); },
     pos(x, y, f) { return db.ref(`rooms/${code}/players/${ctx.uid}`).update({ x: Math.round(x), y: Math.round(y), f, t: Date.now() }); },
     chat(text) { return db.ref(`rooms/${code}/chat`).push({ by: ctx.uid, text, ts: TS() }); },
     pruneChat(ids) { const upd = {}; ids.forEach(id => { upd[`chat/${id}`] = null; }); return ids.length ? this.update(upd) : Promise.resolve(); }
   };
 }
+/* ---------- quitting and ending an escape ---------- */
+// Quit (just me): my seat is freed for anyone with the code, what I carry goes to my partner, and the
+// escape drops off my list. If nobody else is left in it, it is deleted instead.
+async function quitEscape(code, r) {
+  const me = ctx.uid; if (r === undefined) r = (await db.ref('rooms/' + code).once('value')).val();
+  if (!seatedIn(r, me)) { await db.ref(`users/${me}/escapes/${code}`).remove(); return 'gone'; }
+  const other = otherSeatUid(r, me);
+  if (!other) { await db.ref().update({ [`rooms/${code}`]: null, [`users/${me}/escapes/${code}`]: null }); return 'deleted'; }
+  const seat = r.seats.A === me ? 'A' : 'B';
+  const upd = { [`users/${me}/escapes/${code}`]: null, [`rooms/${code}/seats/${seat}`]: null, [`rooms/${code}/players/${me}`]: null, [`rooms/${code}/left/${seat}`]: { name: ctx.name || 'Your partner', at: TS() } };
+  Object.keys(((r.players || {})[me] || {}).inv || {}).forEach(it => { upd[`rooms/${code}/players/${other}/inv/${it}`] = true; });
+  await db.ref().update(upd);
+  // if my partner quit in the same moment, nobody is left: tidy it away
+  const seats = (await db.ref(`rooms/${code}/seats`).once('value')).val(); if (!seats || (!seats.A && !seats.B)) await db.ref('rooms/' + code).remove();
+  return 'left';
+}
+// End (for both): the escape is replaced by a one-line note saying who ended it, so a partner who is inside
+// right now, or who opens the lobby later, is told. Their copy tidies the note away once they have seen it.
+async function endEscape(code, r) {
+  const me = ctx.uid; if (r === undefined) r = (await db.ref('rooms/' + code).once('value')).val();
+  const other = otherSeatUid(r, me);
+  if (other && !(r && r.ended)) await db.ref().update({ [`rooms/${code}`]: { ended: { by: me, name: ctx.name || 'Your partner', at: TS() } }, [`users/${me}/escapes/${code}`]: null });
+  else await db.ref().update({ [`rooms/${code}`]: null, [`users/${me}/escapes/${code}`]: null });
+}
+const runWhere = r => r.status === 'done' ? 'Escaped all ten rooms' : `Room ${r.level || 1} of ${ROOMS.length}: ${(ROOMS[(r.level || 1) - 1] || {}).name || ''}`;
+const runStarted = r => { if (typeof r.createdAt !== 'number') return ''; try { return new Date(r.createdAt).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; } };
+
 // Wandering alone: the same shape, kept in memory and in localStorage so you can carry on later.
 function makeSoloStore() {
   let fn = null; const key = 'mm.solo';
@@ -812,16 +887,20 @@ function enterRun(store, solo) {
   store.subscribe(onRun);
   if (!G.rafOn) { G.rafOn = true; requestAnimationFrame(frame); }
 }
-function leaveRun() {
-  if (G.holding) stopHold();
-  if (G.store) { try { G.store.unsubscribe(); } catch (e) { /* ignore */ } }
+function leaveRun(opts) {
+  const silent = !!(opts && opts.silent);
+  if (G.holding) { if (silent) { G.holding = null; G.me.pose = null; } else stopHold(); }
+  if (G.store) { try { G.store.unsubscribe(silent); } catch (e) { /* ignore */ } }
   G.store = null; G.run = null; G.room = null; G.level = 0; closeSheet(); closeCard(); hideOverlay();
   if (ctx.authUid) showLobby(); else show('auth');
 }
 let seenChat = new Set(), lastPing = 0;
 function onRun(r) {
-  const prev = G.run; G.run = r;
-  if (!r) { if (prev) { toast('That escape no longer exists.'); leaveRun(); } return; }
+  const prev = G.run;
+  if (!G.solo && r && !r.ended && !r.seats) { checkScrap(); return; }   // not a real escape, or not loaded yet: look again first
+  if (!G.solo && !seatedIn(r, G.me.uid)) { runGone(r); return; }
+  G.run = r;
+  if (!r) return;
   G.seat = G.solo ? 'A' : (seatOf(G.me.uid) || 'A');
   const lv = r.level || 1;
   if (lv !== G.level && !G.cardOpen) loadLevel(lv);
@@ -829,7 +908,9 @@ function onRun(r) {
   const mine = (r.players || {})[G.me.uid];
   if (mine && mine.lv !== G.level && G.level) G.store.update({ [`players/${G.me.uid}/lv`]: G.level });
   // partner
-  const pu = partnerUid(); const pp = pu && r.players[pu];
+  const pu = partnerUid(); const pp = pu && (r.players || {})[pu];
+  if (!G.solo && prev) { const was = otherSeatUid(prev, G.me.uid); if (was && !pu) { const l = (r.left || {})[G.seat === 'A' ? 'B' : 'A']; toast(`${l ? l.name : 'Your partner'} left this escape. Code ${G.store.code()} lets someone else take their place.`, 6000); } else if (!was && pu && pp) toast(`${pp.name} is in!`, 3000); }
+  if (!pp) G.partner = null;
   if (pp) { if (!G.partner || G.partner.uid !== pu) G.partner = { uid: pu, x: pp.x || 240, y: pp.y || 660, tx: pp.x || 240, ty: pp.y || 660, f: pp.f || 1, walk: 0, pal: PALETTES[pp.pal || 1], name: pp.name, phase: 1.7 }; else { if (pp.x != null) G.partner.tx = pp.x; if (pp.y != null) G.partner.ty = pp.y; G.partner.f = pp.f || 1; G.partner.name = pp.name; G.partner.pal = PALETTES[pp.pal || 1]; } }
   // chat
   const cs = r.chat || {}, old = [];
@@ -843,6 +924,22 @@ function onRun(r) {
   refreshHud(); renderInventory(); if (G.sheetObj) refreshSheet();
   checkHoldLocks();
 }
+const endedSeen = new Set();
+function checkScrap() {
+  const code = G.store && G.store.code(); if (!code || G.scrapCheck) return;
+  G.scrapCheck = setTimeout(async () => { G.scrapCheck = 0; try { const v = (await db.ref('rooms/' + code).once('value')).val(); if (G.store && G.store.code() === code && v && !v.ended && !v.seats) runGone(v); } catch (e) { /* offline: leave it */ } }, 1500);
+}
+function runGone(r) {
+  const code = G.store && G.store.code(), me = G.me.uid;
+  leaveRun({ silent: true });
+  if (!code) return;
+  if (r && r.ended) {
+    if (r.ended.by !== me && !endedSeen.has(code)) { endedSeen.add(code); overlay(`<h2>This escape is over</h2><p>${esc(r.ended.name || 'Your partner')} ended it, so it is gone for both of you. Rooms you finished stay on your profile with their best times.</p>`, [{ label: 'OK', act: hideOverlay }]); }
+    db.ref().update(r.ended.by !== me ? { [`users/${me}/escapes/${code}`]: null, [`rooms/${code}`]: null } : { [`users/${me}/escapes/${code}`]: null }).catch(() => {});
+  } else if (r && !r.seats) db.ref().update({ [`users/${me}/escapes/${code}`]: null, [`rooms/${code}`]: null }).catch(() => {});
+  else if (r) toast('You are no longer in that escape.');
+  else toast('That escape no longer exists.');
+}
 function loadLevel(n) {
   G.level = n; G.room = ROOMS[n - 1] || null; G.objs = {}; G.sheetObj = null; closeSheet(); G.shown = new Set(); G.pings = [];
   if (!G.room) { showFinale(); return; }
@@ -853,7 +950,7 @@ function loadLevel(n) {
   G.store.update(upd).catch(() => {});
   G.enteredAt = G.t;
   announce(G.room.name, 'gold', 2200); if (G.room.dark) sfx.spooky();
-  if (G.room.intro && !store_.get('mm.intro.' + n + '.' + (G.solo ? 'solo' : G.store.code()))) { store_.set('mm.intro.' + n + '.' + (G.solo ? 'solo' : G.store.code()), '1'); setTimeout(() => showIntro(G.room), 600); }
+  if (G.room.intro && !store_.get('mm.intro.' + n + '.' + (G.solo ? 'solo' : G.store.code()))) { store_.set('mm.intro.' + n + '.' + (G.solo ? 'solo' : G.store.code()), '1'); const room = G.room; setTimeout(() => { if (G.room === room && !G.cardOpen) showIntro(room); }, 600); }
   refreshHud(); renderInventory();
 }
 const FLOOR_TYPES = new Set(['item', 'chest', 'crate', 'barrel', 'safe', 'desk', 'table', 'counter', 'turnstile', 'register', 'lever', 'plate', 'lamp', 'bench', 'plant', 'horse', 'ball', 'candle', 'skull', 'cart', 'vat', 'scale', 'conveyor', 'valve', 'telescope', 'pedestal', 'statue', 'balloons', 'popcorn', 'puppet', 'rope', 'bigwheel', 'gondola', 'pendulum', 'grave', 'hatch']);
@@ -912,11 +1009,12 @@ function drawObj(c, o) { let st = ost(o.id); if (o.spinWhen) st = Object.assign(
 let darkCv = null;
 function drawDarkness(c, viewW) {
   if (!darkCv) darkCv = document.createElement('canvas');
-  const w = Math.ceil(viewW) + 2, h = WORLD_H + 20; if (darkCv.width !== w || darkCv.height !== h) { darkCv.width = w; darkCv.height = h; }
+  // covers the spare space above the room too, and a strip under the chat bar
+  const top = Math.ceil(Math.max(0, OY) / S) + 10, w = Math.ceil(viewW) + 2, h = WORLD_H + top + Math.ceil(BOT_INSET / S) + 20; if (darkCv.width !== w || darkCv.height !== h) { darkCv.width = w; darkCv.height = h; }
   const d = darkCv.getContext('2d'); d.setTransform(1, 0, 0, 1, 0, 0); d.globalCompositeOperation = 'source-over'; d.fillStyle = 'rgba(6,2,22,.94)'; d.fillRect(0, 0, w, h);
   d.globalCompositeOperation = 'destination-out';
-  lights().forEach(l => { const g = d.createRadialGradient(l.x - G.camX, l.y, 0, l.x - G.camX, l.y, l.r); g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(0.6, 'rgba(0,0,0,.85)'); g.addColorStop(1, 'rgba(0,0,0,0)'); d.fillStyle = g; d.fillRect(l.x - G.camX - l.r, l.y - l.r, l.r * 2, l.r * 2); });
-  c.drawImage(darkCv, G.camX, 0);
+  lights().forEach(l => { const ly = l.y + top, g = d.createRadialGradient(l.x - G.camX, ly, 0, l.x - G.camX, ly, l.r); g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(0.6, 'rgba(0,0,0,.85)'); g.addColorStop(1, 'rgba(0,0,0,0)'); d.fillStyle = g; d.fillRect(l.x - G.camX - l.r, ly - l.r, l.r * 2, l.r * 2); });
+  c.drawImage(darkCv, G.camX, -top);
 }
 
 /* ---------- input: tap to walk, tap a thing to use it, hold to ping ---------- */
@@ -977,8 +1075,10 @@ async function commit(upd, msg, kind) {
 function announce(text, kind, hold) { const el = document.createElement('div'); el.className = 'wordart ' + (kind || ''); el.style.setProperty('--hold', (hold || 1600) + 'ms'); el.textContent = text; $('#screen-game').appendChild(el); setTimeout(() => el.remove(), (hold || 1600) + 520); }
 function refreshHud() {
   if (!G.room) return; const tc = taskCount(); $('#hud-title').textContent = `${G.level}. ${G.room.name}`; $('#hud-tasks').textContent = `${tc.done}/${tc.total}`;
-  const pu = partnerUid(), pp = pu && G.run.players[pu], pe = $('#partner');
-  if (pp && !G.solo) { pe.classList.remove('hidden'); const here = pp.here && pp.lv === G.level; pe.innerHTML = `<span class="pav" style="background:${PALETTES[pp.pal || 1].col}"></span><span>${esc(pp.name)} ${here ? 'is here' : pp.lv && pp.lv !== G.level ? 'is in room ' + pp.lv : 'is away'}</span>`; } else pe.classList.add('hidden');
+  const pu = partnerUid(), pp = pu && (G.run.players || {})[pu], pe = $('#partner');
+  if (G.solo) pe.classList.add('hidden');
+  else if (pp) { pe.classList.remove('hidden'); const here = pp.here && pp.lv === G.level; pe.innerHTML = `<span class="pav" style="background:${PALETTES[pp.pal || 1].col}"></span><span>${esc(pp.name)} ${here ? 'is here' : pp.lv && pp.lv !== G.level ? 'is in room ' + pp.lv : 'is away'}</span>`; }
+  else { const l = (G.run.left || {})[G.seat === 'A' ? 'B' : 'A']; pe.classList.remove('hidden'); pe.innerHTML = `<span>${l ? esc(l.name) + ' left. ' : 'Waiting for a partner. '}Code <b>${esc(G.store ? G.store.code() : '')}</b></span>`; }
 }
 setInterval(() => { if (!G.room || !G.run) return; const st = lvState(); const base = st.startedAt && typeof st.startedAt === 'number' ? st.startedAt : Date.now(); const secs = (st.doneAt ? (st.time || 0) : Math.round((Date.now() - base) / 1000) + (st.penalty || 0)); const el = $('#hud-clock'); el.textContent = fmtTime(secs); el.classList.toggle('pen', !!st.penalty); }, 500);
 
@@ -1182,7 +1282,7 @@ const style = document.createElement('style'); style.textContent = '@keyframes s
 /* ---------- inventory ---------- */
 let invKey = '';
 function renderInventory() {
-  const inv = myInv(); const key = inv.join(); if (key === invKey) return; const added = inv.filter(i => !invKey.split(',').includes(i)); invKey = key;
+  const inv = myInv().filter(id => !G.room || roomItems(G.room).has(id)); const key = inv.join(); if (key === invKey) return; const added = inv.filter(i => !invKey.split(',').includes(i)); invKey = key;
   $('#inv').innerHTML = inv.map(id => `<button type="button" data-item="${id}" class="${added.includes(id) ? 'new' : ''}" title="${esc(ITEMS[id] ? ITEMS[id].name : id)}">${I[(ITEMS[id] || {}).icon] || I.gem}</button>`).join('');
 }
 $('#inv').addEventListener('click', e => { const b = e.target.closest('[data-item]'); if (!b) return; const id = b.dataset.item, it = ITEMS[id] || { name: id, desc: '' }; const pu = partnerUid(), pp = pu && G.run.players[pu], near = G.partner && partnerHere() && Math.hypot(G.partner.x - G.me.x, G.partner.y - G.me.y) < 170; const btns = [{ label: 'Close', cls: 'secondary', act: hideOverlay }]; if (pp && !G.solo) btns.unshift({ label: `Give to ${esc(pp.name)}`, act: async () => { if (!near) { toast(`Walk over to ${pp.name} first.`); return; } hideOverlay(); await G.store.update({ [`players/${G.me.uid}/inv/${id}`]: null, [`players/${pu}/inv/${id}`]: true }); sfx.pick(); toast(`Handed ${it.name} to ${pp.name}.`); } }); overlay(`<h2>${esc(it.name)}</h2><div style="width:60px;height:60px;margin:0 auto 8px">${I[it.icon] || I.gem}</div><p>${esc(it.desc || '')}</p>${pp && !G.solo ? `<p class="hint">${near ? `${esc(pp.name)} is right here: you can hand it over.` : `Stand next to ${esc(pp.name)} to hand it over.`}</p>` : ''}`, btns); });
@@ -1190,15 +1290,50 @@ $('#inv').addEventListener('click', e => { const b = e.target.closest('[data-ite
 /* ---------- chat ---------- */
 function showChat(m) {
   const who = m.by === G.me.uid ? 'You' : ((G.run.players || {})[m.by] || {}).name || '?';
-  const el = document.createElement('div'); el.className = 'msg' + (m.by === G.me.uid ? ' mine' : ''); el.innerHTML = `<b>${esc(who)}</b>${esc(m.text)}`; const log = $('#chatlog'); log.appendChild(el); while (log.children.length > 3) log.firstChild.remove(); setTimeout(() => el.remove(), 10000);
-  const p = m.by === G.me.uid ? G.me : G.partner; if (p) { p.bubble = m.text; p.bubbleUntil = G.t + 3; }
+  const el = document.createElement('div'); el.className = 'msg' + (m.by === G.me.uid ? ' mine' : ''); el.innerHTML = `<b>${esc(who)}</b>${esc(m.text)}`; const log = $('#chatlog'); log.appendChild(el); while (log.children.length > 3) log.firstChild.remove(); setTimeout(() => el.remove(), 12000);
+  const p = m.by === G.me.uid ? G.me : G.partner; if (p) { p.bubble = m.text; p.bubbleUntil = G.t + 6; }
   if (m.by !== G.me.uid) sfx.chat();
 }
 async function sendChat() { const inp = $('#inp-chat'), text = inp.value.trim(); if (!text || !G.store) return; inp.value = ''; if (G.solo) { showChat({ by: 'me', text }); return; } try { await G.store.chat(text); } catch (e) { toast(friendlyDb(e)); } }
 $('#btn-send').addEventListener('click', sendChat); $('#inp-chat').addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });
 $('#btn-mute').addEventListener('click', () => { prefs.sound = !prefs.sound; savePrefs(); renderMute(); });
 $('#btn-tasks').addEventListener('click', () => { const tb = $('#taskbox'); if (!tb.classList.contains('hidden')) { tb.classList.add('hidden'); return; } const ts = tasks(); const done = ts.filter(taskDone), todo = ts.length - done.length; tb.innerHTML = `<b>${G.room.name}</b> · ${done.length} of ${ts.length} done<ul>${done.map(o => `<li class="done">${esc(o.task)}</li>`).join('')}${todo ? `<li class="todo">${todo} more thing${todo === 1 ? '' : 's'} to find or solve</li>` : ''}</ul>${G.room.goal ? `<p class="sub">${esc(G.room.goal)}</p>` : ''}`; tb.classList.remove('hidden'); setTimeout(() => tb.classList.add('hidden'), 9000); });
-$('#btn-leave').addEventListener('click', () => { overlay(`<h2>Leave the carnival for now?</h2><p>${G.solo ? 'Your wander is saved on this phone.' : 'Everything you’ve solved stays solved. Come back from the lobby any time; your partner can keep going without you.'}</p>`, [{ label: 'Leave', act: () => { hideOverlay(); leaveRun(); } }, { label: 'Stay', cls: 'secondary', act: hideOverlay }]); });
+$('#btn-leave').addEventListener('click', () => {
+  if (G.solo) { overlay('<h2>Leave the carnival for now?</h2><p>Your wander is saved on this phone.</p>', [{ label: 'Leave', act: () => { hideOverlay(); leaveRun(); } }, { label: 'Stay', cls: 'secondary', act: hideOverlay }]); return; }
+  const code = G.store.code(), r = G.run, name = partnerNameIn(r);
+  overlay(`<h2>Leave the carnival?</h2><p><b>Leave for now</b> and everything you’ve solved stays solved. Come back from the lobby any time${name ? `; ${esc(name)} can keep going without you` : ''}.</p>`, [
+    { label: 'Leave for now', act: () => { hideOverlay(); leaveRun(); } },
+    ...(name ? [{ label: 'Quit this escape', cls: 'secondary', act: () => askQuit(code, r, true) }, { label: 'End it for both of you', cls: 'danger', act: () => askEnd(code, r, true) }] : [{ label: 'Delete this escape', cls: 'danger', act: () => askEnd(code, r, true) }]),
+    { label: 'Stay', cls: 'secondary', act: hideOverlay }
+  ], { stack: true });
+});
+/* ---------- quitting and ending, always with an are-you-sure ---------- */
+function partnerNameIn(r) { const o = otherSeatUid(r, ctx.uid); return o && r.players && r.players[o] ? r.players[o].name || 'your partner' : null; }
+function askQuit(code, r, inGame) {
+  const name = partnerNameIn(r);
+  overlay(`<h2>Quit this escape?</h2><p>It comes off your list.${name ? ` ${esc(name)} can carry on, and anyone with the code <b>${esc(code)}</b> can take your place. Anything you are carrying goes to ${esc(name)}.` : ''}</p><p class="sub">Rooms you have finished stay on your profile with their best times.</p>`,
+    [{ label: 'Yes, quit', cls: 'danger', act: async () => { hideOverlay(); if (inGame) leaveRun({ silent: true }); try { await quitEscape(code, r); toast(name ? `You quit the escape with ${name}.` : 'Escape deleted.'); } catch (e) { toast(friendlyDb(e)); } } }, { label: 'Cancel', cls: 'secondary', act: hideOverlay }]);
+}
+function askEnd(code, r, inGame) {
+  const name = partnerNameIn(r);
+  overlay(name ? `<h2>End it for both of you?</h2><p>This escape is deleted for you and ${esc(name)}, with everything solved in it, and it can’t be brought back. ${esc(name)} is told that you ended it.</p><p class="sub">Rooms you have finished stay on your profiles with their best times.</p>` : '<h2>Delete this escape?</h2><p>Nobody else is in it. It can’t be brought back.</p><p class="sub">Rooms you have finished stay on your profile with their best times.</p>',
+    [{ label: name ? 'Yes, end it' : 'Yes, delete it', cls: 'danger', act: async () => { hideOverlay(); if (inGame) leaveRun({ silent: true }); try { await endEscape(code, r); toast(name ? `Escape with ${name} ended.` : 'Escape deleted.'); } catch (e) { toast(friendlyDb(e)); } } }, { label: 'Cancel', cls: 'secondary', act: hideOverlay }]);
+}
+function askRemoveDone(code, r) {
+  overlay('<h2>Take it off your list?</h2><p>You escaped this one. It comes off your list; your times stay on your profile.</p>', [{ label: 'Yes, remove it', cls: 'danger', act: async () => {
+    hideOverlay(); const others = Object.keys(r.players || {}).filter(u => u !== ctx.uid), removed = r.removed || {}; const upd = { [`users/${ctx.uid}/escapes/${code}`]: null };
+    if (!others.length || others.every(u => removed[u])) upd[`rooms/${code}`] = null; else upd[`rooms/${code}/removed/${ctx.uid}`] = true;
+    try { await db.ref().update(upd); } catch (err) { setLobbyErr(friendlyDb(err)); } } }, { label: 'Cancel', cls: 'secondary', act: hideOverlay }]);
+}
+function runMenu(c) {
+  const r = lobby.runs[c]; if (!seatedIn(r, ctx.uid)) return; const name = partnerNameIn(r), started = runStarted(r);
+  const btns = [{ label: 'Go in', act: () => { hideOverlay(); joinRun(c); } }];
+  if (r.status === 'done') btns.push({ label: 'Take it off my list', cls: 'danger', act: () => askRemoveDone(c, r) });
+  else if (name) btns.push({ label: 'Quit this escape', cls: 'secondary', act: () => askQuit(c, r) }, { label: `End it for you and ${esc(name)}`, cls: 'danger', act: () => askEnd(c, r) });
+  else btns.push({ label: 'Delete this escape', cls: 'danger', act: () => askEnd(c, r) });
+  btns.push({ label: 'Cancel', cls: 'secondary', act: hideOverlay });
+  overlay(`<h2>${name ? 'Escape with ' + esc(name) : 'Your escape'}</h2><p>${esc(runWhere(r))}.</p><p class="sub">Code ${esc(c)}${started ? ' · started ' + esc(started) : ''}</p>`, btns, { stack: true });
+}
 
 /* ---------- cards: intro, room done, finale ---------- */
 function closeCard() { const c = $('#card'); if (c) c.remove(); G.cardOpen = false; }
@@ -1238,12 +1373,35 @@ function lobbyListen() {
   on(db.ref(`profiles/${ctx.uid}/escape`), snap => { lobby.prog = snap.val() || null; if ($('#pane-progress').classList.contains('on')) renderProgress(); });
 }
 function lobbyStop() { lobby.refs.forEach(([r, h]) => r.off('value', h)); lobby.refs = []; [lobby.runRefs, lobby.presRefs, lobby.fprogRefs].forEach(m => { Object.values(m).forEach(([r, h]) => r.off('value', h)); }); lobby.runRefs = {}; lobby.runs = {}; lobby.presRefs = {}; lobby.fprogRefs = {}; }
-function renderRuns() {
-  const el = $('#runs-list'), codes = Object.keys(lobby.runs).filter(c => lobby.runs[c]);
-  if (!codes.length) { el.innerHTML = '<div class="empty">No escapes yet. Start one with a friend below.</div>'; return; }
-  el.innerHTML = codes.sort((a, b) => (lobby.runs[b].createdAt || 0) - (lobby.runs[a].createdAt || 0)).map(c => { const r = lobby.runs[c], other = Object.keys(r.players || {}).find(u => u !== ctx.uid), op = other ? r.players[other] : null; const lv = r.level || 1, done = r.status === 'done'; const here = op && op.here; return `<div class="item row-btn${here ? ' turn' : ''}" data-open="${esc(c)}"><span class="av" style="width:40px;height:40px">${avatarSVG(PALETTES[(op && op.pal) || 1], 40)}</span><div class="grow"><div>${op ? 'with ' + esc(op.name) : 'Waiting for someone to join'}${!op ? ` <span class="sub">code ${esc(c)}</span>` : ''}</div><span class="sub">${done ? 'Escaped all ten!' : `Room ${lv} of ${ROOMS.length}: ${esc((ROOMS[lv - 1] || {}).name || '')}`}${here ? ' · they’re inside now' : ''}</span></div>${done ? `<button type="button" class="x" data-remove="${esc(c)}" aria-label="Remove">✕</button>` : '<span class="sub">›</span>'}</div>`; }).join('');
+const tidying = new Set();
+function tidyRun(c, r) {
+  if (tidying.has(c)) return; tidying.add(c);
+  const me = ctx.uid;
+  const apply = v => {
+    const upd = { [`users/${me}/escapes/${c}`]: null };
+    if (v && v.ended) { if (v.ended.by !== me) { upd[`rooms/${c}`] = null; if (!endedSeen.has(c)) { endedSeen.add(c); toast(`${v.ended.name || 'Your partner'} ended an escape you had together.`, 5000); } } }
+    else if (v && !v.seats) upd[`rooms/${c}`] = null;   // a scrap left behind, not a real escape
+    return db.ref().update(upd);
+  };
+  if (r && r.ended) { apply(r).catch(() => {}).then(() => tidying.delete(c)); return; }
+  // Missing, not mine any more, or a scrap: look again in a moment before touching anything, so a
+  // half-loaded copy can never take a real escape off the list.
+  setTimeout(async () => { try { const v = (await db.ref('rooms/' + c).once('value')).val(); if (!seatedIn(v, me)) await apply(v); } catch (e) { /* try again next time */ } tidying.delete(c); }, 1500);
 }
-$('#runs-list').addEventListener('click', async e => { const rm = e.target.closest('[data-remove]'); if (rm) { e.stopPropagation(); const c = rm.dataset.remove, r = lobby.runs[c] || {}, others = Object.keys(r.players || {}).filter(u => u !== ctx.uid), removed = r.removed || {}; const upd = { [`users/${ctx.uid}/escapes/${c}`]: null }; if (!others.length || others.every(u => removed[u])) upd[`rooms/${c}`] = null; else upd[`rooms/${c}/removed/${ctx.uid}`] = true; try { await db.ref().update(upd); } catch (err) { setLobbyErr(friendlyDb(err)); } return; } const op = e.target.closest('[data-open]'); if (op) joinRun(op.dataset.open); });
+function renderRuns() {
+  const el = $('#runs-list'), me = ctx.uid;
+  Object.keys(lobby.runs).forEach(c => { const r = lobby.runs[c]; if (r !== undefined && !seatedIn(r, me)) tidyRun(c, r); });
+  const codes = Object.keys(lobby.runs).filter(c => seatedIn(lobby.runs[c], me));
+  if (!codes.length) { el.innerHTML = '<div class="empty">No escapes yet. Start one with a friend below.</div>'; return; }
+  codes.sort((a, b) => { const A = lobby.runs[a], B = lobby.runs[b]; return ((A.status === 'done') - (B.status === 'done')) || ((B.level || 1) - (A.level || 1)) || ((B.createdAt || 0) - (A.createdAt || 0)); });   // furthest along first
+  el.innerHTML = codes.map(c => {
+    const r = lobby.runs[c], o = otherSeatUid(r, me), op = o && r.players ? r.players[o] : null, here = op && op.here, started = runStarted(r);
+    const l = !o ? (r.left || {})[r.seats.A === me ? 'B' : 'A'] : null;
+    const who = op ? 'with ' + esc(op.name) : l ? esc(l.name) + ' left. Someone else can join with the code' : 'Waiting for someone to join';
+    return `<div class="item row-btn${here ? ' turn' : ''}" data-open="${esc(c)}"><span class="av" style="width:40px;height:40px">${avatarSVG(PALETTES[op && op.pal != null ? op.pal : 1], 40)}</span><div class="grow"><div>${who}</div><span class="sub">${esc(runWhere(r))}${here ? ' · they’re inside now' : ''}</span><span class="sub tiny">Code ${esc(c)}${started ? ' · started ' + esc(started) : ''}</span></div><button type="button" class="x more" data-menu="${esc(c)}" aria-label="Quit or end this escape" title="Quit or end">${I.more}</button></div>`;
+  }).join('');
+}
+$('#runs-list').addEventListener('click', e => { const m = e.target.closest('[data-menu]'); if (m) { e.stopPropagation(); runMenu(m.dataset.menu); return; } const op = e.target.closest('[data-open]'); if (op) joinRun(op.dataset.open); });
 function renderFriends() {
   const fl = $('#friends-list'), sl = $('#start-list'), rl = $('#requests-list'), fids = Object.keys(lobby.friends);
   const row = (f, withPlay) => { const fr = lobby.friends[f], onl = !!lobby.presence[f]; return `<div class="item"><span class="av" style="width:40px;height:40px">${avatarSVG(PALETTES[Math.abs(hashStr(f)) % PALETTES.length], 40)}</span><div class="grow"><div>${esc(fr.name)} <span class="dot${onl ? ' on' : ''}" style="display:inline-block;vertical-align:middle"></span></div><span class="sub">@${esc(fr.username || '')}${onl ? ' · online' : ''}</span></div>${withPlay ? `<button type="button" data-start="${esc(f)}">Start</button>` : `<button type="button" class="x" data-unfriend="${esc(f)}" aria-label="Remove friend">✕</button>`}</div>`; };
@@ -1253,7 +1411,15 @@ function renderFriends() {
   rl.innerHTML = rids.length ? rids.map(f => { const rq = lobby.requests[f] || {}; return `<div class="item"><div class="grow"><div>${esc(rq.name || 'Someone')} wants to be friends</div><span class="sub">@${esc(rq.username || '')}</span></div><button type="button" data-accept="${esc(f)}">Accept</button><button type="button" class="x" data-decline="${esc(f)}" aria-label="Decline">✕</button></div>`; }).join('') : '<div class="empty">No requests waiting.</div>';
   const n = $('#req-n'); n.textContent = rids.length; n.classList.toggle('hidden', !rids.length);
 }
-$('#start-list').addEventListener('click', async e => { const b = e.target.closest('[data-start]'); if (!b) return; const f = b.dataset.start, fr = lobby.friends[f]; if (!fr) return; b.disabled = true; setLobbyErr(''); try { const st = makeRunStore(); await st.create(f, fr.name); enterRun(st, false); } catch (err) { setLobbyErr(friendlyDb(err)); b.disabled = false; } });
+$('#start-list').addEventListener('click', async e => {
+  const b = e.target.closest('[data-start]'); if (!b) return; const f = b.dataset.start, fr = lobby.friends[f]; if (!fr) return;
+  const start = async () => { b.disabled = true; setLobbyErr(''); try { const st = makeRunStore(); await st.create(f, fr.name); enterRun(st, false); } catch (err) { setLobbyErr(friendlyDb(err)); b.disabled = false; } };
+  const going = Object.keys(lobby.runs).filter(c => { const r = lobby.runs[c]; return seatedIn(r, ctx.uid) && r.status !== 'done' && otherSeatUid(r, ctx.uid) === f; }).sort((x, y) => (lobby.runs[y].level || 1) - (lobby.runs[x].level || 1));
+  if (!going.length) { start(); return; }
+  const r = lobby.runs[going[0]];
+  overlay(`<h2>You already have one going</h2><p>${going.length > 1 ? `You and ${esc(fr.name)} have ${going.length} escapes going. The furthest is in` : `You and ${esc(fr.name)} are in`} ${esc(runWhere(r))}. Go back in, or start a new escape from Room 1?</p>`,
+    [{ label: 'Go back in', act: () => { hideOverlay(); joinRun(going[0]); } }, { label: 'Start a new one', cls: 'secondary', act: () => { hideOverlay(); start(); } }, { label: 'Cancel', cls: 'secondary', act: hideOverlay }], { stack: true });
+});
 $('#btn-create').addEventListener('click', async () => { setLobbyErr(''); try { const st = makeRunStore(); const code = await st.create(null); enterRun(st, false); setTimeout(() => toast(`Share code ${code} (or the link). Your partner joins from the lobby.`, 5000), 800); } catch (err) { setLobbyErr(friendlyDb(err)); } });
 $('#btn-solo').addEventListener('click', () => { const st = makeSoloStore(); overlay('<h2>Look around alone</h2><p>You can wander every room and solve most things by yourself. Anything that needs two people is marked, and a few clues are meant for the other seat, so you’ll see both. Your progress is saved on this phone.</p>', [{ label: 'Wander in', act: () => { hideOverlay(); enterRun(st, true); } }, { label: 'Start over', cls: 'secondary', act: () => { hideOverlay(); st.reset(); enterRun(makeSoloStore(), true); } }, { label: 'Cancel', cls: 'secondary', act: hideOverlay }]); });
 async function joinRun(code) { setLobbyErr(''); try { const st = makeRunStore(); await st.join(code); enterRun(st, false); } catch (err) { showLobby(); setLobbyErr(friendlyDb(err)); } }
@@ -1288,10 +1454,10 @@ async function signOut() { hideOverlay(); if (G.store) leaveRun(); lobbyStop(); 
    The rooms. Answers are stored as hashes (H) so the page source gives nothing away.
    ===================================================================================== */
 Object.assign(ITEMS, {
-  coin: { name: 'Brass token', icon: 'coin', desc: 'A carnival token, worn smooth. Machines take these.' },
-  fortune_card: { name: 'Fortune card', icon: 'card', desc: 'Printed on thin card: THE DRAWER OPENS FOR THE DOG’S NAME.' },
-  key_small: { name: 'Small key', icon: 'key', desc: 'A tiny key with a paper tag: L&F.' },
-  screwdriver: { name: 'Screwdriver', icon: 'screwdriver', desc: 'A stubby screwdriver. Good for covers held on with screws.' }
+  coin: { name: 'Brass token', icon: 'coin', desc: D(['QSBjYXJuaXZhbCB0b2tlbiwgd29ybiBzbW9vdGguIE1hY2hpbmVzIHRha2UgdGhlc2Uu'])[0] },
+  fortune_card: { name: 'Fortune card', icon: 'card', desc: D(['UHJpbnRlZCBvbiB0aGluIGNhcmQ6IFRIRSBEUkFXRVIgT1BFTlMgRk9SIFRIRSBET0figJlTIE5BTUUu'])[0] },
+  key_small: { name: 'Small key', icon: 'key', desc: D(['QSB0aW55IGtleSB3aXRoIGEgcGFwZXIgdGFnOiBMJkYu'])[0] },
+  screwdriver: { name: 'Screwdriver', icon: 'screwdriver', desc: D(['QSBzdHViYnkgc2NyZXdkcml2ZXIuIEdvb2QgZm9yIGNvdmVycyBoZWxkIG9uIHdpdGggc2NyZXdzLg=='])[0] }
 });
 const FINALE = 'The lock on the gate turns by itself. The speakers crackle one last time: “Ten attractions. Two voices. Nobody has done that since me.” A key on a velvet ribbon drops from the sign above you: the master key to Marvello’s. The carnival is yours now, whenever you want it. The gate swings open onto the empty car park and the first grey of morning.';
 const ROOMS = [];
@@ -1343,17 +1509,17 @@ ROOMS.push({
 });
 
 Object.assign(ITEMS, {
-  lens: { name: 'Glass lens', icon: 'lens', desc: 'A thick round lens from a funhouse mirror. Things look sharper through it.' },
-  key_silver: { name: 'Silver key', icon: 'key', desc: 'A slim silver key, cold to the touch.' },
-  ticket: { name: 'Ride ticket', icon: 'ticket', desc: 'ADMIT ONE. CAROUSEL. Torn along the edge.' },
-  oil_can: { name: 'Oil can', icon: 'oil', desc: 'Half a can of machine oil. Hinges love it.' },
-  candle: { name: 'Candle', icon: 'candle', desc: 'A fat red candle, unlit.' },
-  matches: { name: 'Matches', icon: 'matches', desc: 'A box of matches from Madame Zora’s. Three left.' },
-  tent_key: { name: 'Tent key', icon: 'key', desc: 'A brass key with a crescent moon on the bow.' },
-  lantern: { name: 'Lantern', icon: 'lantern', desc: 'A storm lantern. It lights the ground around whoever carries it.' },
-  torch: { name: 'Torch', icon: 'lantern', desc: 'A battery torch. Weaker than the lantern, but it works.' },
-  bone: { name: 'Bony hand', icon: 'bone', desc: 'A prop skeleton hand. Surprisingly lifelike. Hand scanners might not know the difference.' },
-  iron_key: { name: 'Iron key', icon: 'key', desc: 'A heavy iron key with a skull for a bow.' }
+  lens: { name: 'Glass lens', icon: 'lens', desc: D(['QSB0aGljayByb3VuZCBsZW5zIGZyb20gYSBmdW5ob3VzZSBtaXJyb3IuIFRoaW5ncyBsb29rIHNoYXJwZXIgdGhyb3VnaCBpdC4='])[0] },
+  key_silver: { name: 'Silver key', icon: 'key', desc: D(['QSBzbGltIHNpbHZlciBrZXksIGNvbGQgdG8gdGhlIHRvdWNoLg=='])[0] },
+  ticket: { name: 'Ride ticket', icon: 'ticket', desc: D(['QURNSVQgT05FLiBDQVJPVVNFTC4gVG9ybiBhbG9uZyB0aGUgZWRnZS4='])[0] },
+  oil_can: { name: 'Oil can', icon: 'oil', desc: D(['SGFsZiBhIGNhbiBvZiBtYWNoaW5lIG9pbC4gSGluZ2VzIGxvdmUgaXQu'])[0] },
+  candle: { name: 'Candle', icon: 'candle', desc: D(['QSBmYXQgcmVkIGNhbmRsZSwgdW5saXQu'])[0] },
+  matches: { name: 'Matches', icon: 'matches', desc: D(['QSBib3ggb2YgbWF0Y2hlcyBmcm9tIE1hZGFtZSBab3Jh4oCZcy4gVGhyZWUgbGVmdC4='])[0] },
+  tent_key: { name: 'Tent key', icon: 'key', desc: D(['QSBicmFzcyBrZXkgd2l0aCBhIGNyZXNjZW50IG1vb24gb24gdGhlIGJvdy4='])[0] },
+  lantern: { name: 'Lantern', icon: 'lantern', desc: D(['QSBzdG9ybSBsYW50ZXJuLiBJdCBsaWdodHMgdGhlIGdyb3VuZCBhcm91bmQgd2hvZXZlciBjYXJyaWVzIGl0Lg=='])[0] },
+  torch: { name: 'Torch', icon: 'lantern', desc: D(['QSBiYXR0ZXJ5IHRvcmNoLiBXZWFrZXIgdGhhbiB0aGUgbGFudGVybiwgYnV0IGl0IHdvcmtzLg=='])[0] },
+  bone: { name: 'Bony hand', icon: 'bone', desc: D(['QSBwcm9wIHNrZWxldG9uIGhhbmQuIFN1cnByaXNpbmdseSBsaWZlbGlrZS4gSGFuZCBzY2FubmVycyBtaWdodCBub3Qga25vdyB0aGUgZGlmZmVyZW5jZS4='])[0] },
+  iron_key: { name: 'Iron key', icon: 'key', desc: D(['QSBoZWF2eSBpcm9uIGtleSB3aXRoIGEgc2t1bGwgZm9yIGEgYm93Lg=='])[0] }
 });
 
 /* ---------- 2. The Hall of Mirrors ---------- */
@@ -1502,17 +1668,17 @@ ROOMS.push({
 });
 
 Object.assign(ITEMS, {
-  candy_cane: { name: 'Candy cane', icon: 'hammer', desc: 'A candy cane as thick as a crowbar. Probably stronger.' },
-  brass_cog: { name: 'Brass cog', icon: 'cog', desc: 'A brass cog with a square hole. A valve handle is missing one of these.' },
-  sugar_key: { name: 'Sugar key', icon: 'key', desc: 'A key cast in hard sugar. Don’t lick it.' },
-  golden_wrapper: { name: 'Golden wrapper', icon: 'note', desc: 'A golden sweet wrapper. Printed on the inside: LOLLY.' },
-  golden_thread: { name: 'Golden thread', icon: 'thread', desc: 'A length of golden puppet string.' },
-  mask: { name: 'Carved mask', icon: 'mask', desc: 'A wooden theatre mask with a surprised face.' },
-  spanner: { name: 'Spanner', icon: 'wrench', desc: 'A big spanner from the observatory box. Fits a lever bolt.' },
-  stub: { name: 'Wheel ticket', icon: 'ticket', desc: 'ADMIT ONE. BIG WHEEL. Still valid, apparently.' },
-  winding_key: { name: 'Winding key', icon: 'key', desc: 'A square winding key for the master clock.' },
-  cog: { name: 'Steel cog', icon: 'cog', desc: 'A steel cog from inside the clock. The exit mechanism is missing one.' },
-  master_key: { name: 'Master key', icon: 'key', desc: 'Marvello’s master key, on a velvet ribbon. It opens the gate. It opens everything.' }
+  candy_cane: { name: 'Candy cane', icon: 'hammer', desc: D(['QSBjYW5keSBjYW5lIGFzIHRoaWNrIGFzIGEgY3Jvd2Jhci4gUHJvYmFibHkgc3Ryb25nZXIu'])[0] },
+  brass_cog: { name: 'Brass cog', icon: 'cog', desc: D(['QSBicmFzcyBjb2cgd2l0aCBhIHNxdWFyZSBob2xlLiBBIHZhbHZlIGhhbmRsZSBpcyBtaXNzaW5nIG9uZSBvZiB0aGVzZS4='])[0] },
+  sugar_key: { name: 'Sugar key', icon: 'key', desc: D(['QSBrZXkgY2FzdCBpbiBoYXJkIHN1Z2FyLiBEb27igJl0IGxpY2sgaXQu'])[0] },
+  golden_wrapper: { name: 'Golden wrapper', icon: 'note', desc: D(['QSBnb2xkZW4gc3dlZXQgd3JhcHBlci4gUHJpbnRlZCBvbiB0aGUgaW5zaWRlOiBMT0xMWS4='])[0] },
+  golden_thread: { name: 'Golden thread', icon: 'thread', desc: D(['QSBsZW5ndGggb2YgZ29sZGVuIHB1cHBldCBzdHJpbmcu'])[0] },
+  mask: { name: 'Carved mask', icon: 'mask', desc: D(['QSB3b29kZW4gdGhlYXRyZSBtYXNrIHdpdGggYSBzdXJwcmlzZWQgZmFjZS4='])[0] },
+  spanner: { name: 'Spanner', icon: 'wrench', desc: D(['QSBiaWcgc3Bhbm5lciBmcm9tIHRoZSBvYnNlcnZhdG9yeSBib3guIEZpdHMgYSBsZXZlciBib2x0Lg=='])[0] },
+  stub: { name: 'Wheel ticket', icon: 'ticket', desc: D(['QURNSVQgT05FLiBCSUcgV0hFRUwuIFN0aWxsIHZhbGlkLCBhcHBhcmVudGx5Lg=='])[0] },
+  winding_key: { name: 'Winding key', icon: 'key', desc: D(['QSBzcXVhcmUgd2luZGluZyBrZXkgZm9yIHRoZSBtYXN0ZXIgY2xvY2su'])[0] },
+  cog: { name: 'Steel cog', icon: 'cog', desc: D(['QSBzdGVlbCBjb2cgZnJvbSBpbnNpZGUgdGhlIGNsb2NrLiBUaGUgZXhpdCBtZWNoYW5pc20gaXMgbWlzc2luZyBvbmUu'])[0] },
+  master_key: { name: 'Master key', icon: 'key', desc: D(['TWFydmVsbG/igJlzIG1hc3RlciBrZXksIG9uIGEgdmVsdmV0IHJpYmJvbi4gSXQgb3BlbnMgdGhlIGdhdGUuIEl0IG9wZW5zIGV2ZXJ5dGhpbmcu'])[0] }
 });
 
 /* ---------- 6. The Candy Factory ---------- */
