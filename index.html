@@ -81,7 +81,7 @@ input:focus{border-color:var(--accent)}
 .tabbar .n{position:absolute;top:4px;right:18%;background:var(--pink);color:#fff;font-size:.68rem;border-radius:999px;min-width:18px;height:18px;line-height:18px;text-align:center;padding:0 4px}
 .pane{display:none}.pane.on{display:block}
 /* overlay */
-.overlay{position:fixed;inset:0;background:rgba(10,5,25,.72);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+.overlay{position:fixed;inset:0;background:rgba(10,5,25,.8);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
 .overlay .box{background:linear-gradient(180deg,#352457,#241640);border:1px solid var(--line);border-radius:22px;padding:18px;max-width:440px;width:100%;max-height:92vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.5)}
 .overlay .box.wide{max-width:520px}
 .overlay .btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:12px}
@@ -96,30 +96,31 @@ input:focus{border-color:var(--accent)}
 canvas{display:block;width:100%;height:100%}
 .hud{position:absolute;left:0;right:0;top:0;padding:calc(8px + env(safe-area-inset-top,0px)) 10px 6px;display:flex;align-items:center;gap:8px;pointer-events:none;z-index:5}
 .hud > *{pointer-events:auto}
-.hud .room{background:rgba(20,10,40,.72);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-family:'Fredoka',sans-serif;font-weight:600;display:flex;align-items:center;gap:8px;max-width:60vw}
+.hud .room{background:rgba(20,10,40,.82);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-family:'Fredoka',sans-serif;font-weight:600;display:flex;align-items:center;gap:8px;max-width:60vw}
 .hud .room b{font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hud .room small{color:var(--accent);font-weight:700;white-space:nowrap}
-.hud .clock{font-family:'Fredoka',sans-serif;font-variant-numeric:tabular-nums;background:rgba(20,10,40,.72);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-weight:600}
+.hud .clock{font-family:'Fredoka',sans-serif;font-variant-numeric:tabular-nums;background:rgba(20,10,40,.82);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-weight:600}
 .hud .clock.pen{color:var(--bad)}
 .hud .spacer{flex:1}
 .inv{position:absolute;right:10px;top:calc(58px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:6px;z-index:5}
-.inv button{width:46px;height:46px;border-radius:14px;padding:0;background:rgba(255,255,255,.14);backdrop-filter:blur(6px);border:1px solid var(--line);box-shadow:0 3px 0 rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center}
+.inv button{width:46px;height:46px;border-radius:14px;padding:0;background:rgba(40,24,70,.7);border:1px solid var(--line);box-shadow:0 3px 0 rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center}
 .inv button svg{width:30px;height:30px}
 .inv button.new{animation:pop .5s cubic-bezier(.2,1.3,.3,1)}
 @keyframes pop{from{transform:scale(.3)}}
 .bottombar{position:absolute;left:0;right:0;bottom:0;padding:8px 10px calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;align-items:center;z-index:5;pointer-events:none}
 .bottombar > *{pointer-events:auto}
-.bottombar input{flex:1;border-radius:999px;background:rgba(20,10,40,.78);backdrop-filter:blur(6px)}
-.bottombar button.icon{background:rgba(20,10,40,.78);backdrop-filter:blur(6px);border:1px solid var(--line)}
-.partner{position:absolute;left:10px;bottom:calc(66px + env(safe-area-inset-bottom,0px));background:rgba(20,10,40,.72);border:1px solid var(--line);border-radius:999px;padding:5px 12px 5px 6px;display:flex;align-items:center;gap:8px;font-size:.85rem;z-index:5;pointer-events:none}
-.partner .pav{width:26px;height:26px;border-radius:50%}
-.chatlog{position:absolute;left:10px;right:70px;bottom:calc(104px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:5px;pointer-events:none;z-index:5;max-width:420px}
-.msg{align-self:flex-start;background:rgba(20,10,40,.78);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:16px 16px 16px 4px;padding:7px 11px;font-size:.9rem;max-width:100%;animation:msgIn .25s ease-out both;word-break:break-word}
-.msg.mine{align-self:flex-end;border-radius:16px 16px 4px 16px;background:rgba(255,209,102,.22)}
-.msg b{color:var(--accent);margin-right:5px;font-size:.8rem}
+.bottombar input{flex:1;border-radius:999px;background:rgba(20,10,40,.86)}
+.bottombar button.icon{background:rgba(20,10,40,.86);border:1px solid var(--line)}
+.topstack{position:absolute;left:10px;right:66px;top:calc(56px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:4px;pointer-events:none;z-index:5;max-width:320px}
+.partner{align-self:flex-start;background:rgba(20,10,40,.82);border:1px solid var(--line);border-radius:999px;padding:3px 10px 3px 4px;display:flex;align-items:center;gap:6px;font-size:.78rem;pointer-events:none}
+.partner .pav{width:20px;height:20px;border-radius:50%}
+.chatlog{display:flex;flex-direction:column;gap:4px;pointer-events:none}
+.msg{pointer-events:none;align-self:flex-start;background:rgba(20,10,40,.84);border:1px solid var(--line);border-radius:12px 12px 12px 3px;padding:4px 9px;font-size:.78rem;line-height:1.25;max-width:100%;animation:msgIn .25s ease-out both;word-break:break-word;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.msg.mine{align-self:flex-end;border-radius:12px 12px 3px 12px;background:rgba(84,60,20,.88)}
+.msg b{color:var(--accent);margin-right:4px;font-size:.7rem}
 @keyframes msgIn{from{opacity:0;transform:translateY(6px)}}
 /* interaction sheet */
-.sheet{position:absolute;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));max-height:78vh;overflow:auto;z-index:20;background:linear-gradient(180deg,rgba(53,36,87,.96),rgba(36,22,64,.97));backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:22px;padding:14px 14px 14px;box-shadow:0 20px 50px rgba(0,0,0,.5);animation:sheetUp .3s cubic-bezier(.2,.9,.3,1.1) both}
+.sheet{position:absolute;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));max-height:78vh;overflow:auto;z-index:20;background:linear-gradient(180deg,rgba(53,36,87,.985),rgba(36,22,64,.99));border:1px solid var(--line);border-radius:22px;padding:14px 14px 14px;box-shadow:0 20px 50px rgba(0,0,0,.5);animation:sheetUp .3s cubic-bezier(.2,.9,.3,1.1) both}
 @keyframes sheetUp{from{transform:translateY(40px);opacity:0}}
 .sheet .top{display:flex;align-items:center;gap:8px}
 .sheet h2{flex:1;font-size:1.3rem;margin:0}
@@ -189,13 +190,13 @@ canvas{display:block;width:100%;height:100%}
 .riddlein input{text-transform:uppercase;letter-spacing:.1em;font-weight:800;text-align:center}
 .holdbtn{width:100%;height:64px;font-size:1.15rem;background:linear-gradient(180deg,#ff9fbe,#ff6b9d);color:#3a0a1c;box-shadow:0 4px 0 #b03a60;user-select:none;-webkit-user-select:none;touch-action:none}
 .holdbtn.on{background:linear-gradient(180deg,#b9ffd0,#7ee8a2);color:#07301a;box-shadow:0 2px 0 #3dbb6a;transform:translateY(2px)}
-.taskbox{position:absolute;left:10px;top:calc(58px + env(safe-area-inset-top,0px));background:rgba(20,10,40,.86);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:16px;padding:10px 12px;max-width:min(320px,80vw);z-index:6;font-size:.9rem}
+.taskbox{position:absolute;left:10px;top:calc(58px + env(safe-area-inset-top,0px));background:rgba(20,10,40,.94);border:1px solid var(--line);border-radius:16px;padding:10px 12px;max-width:min(320px,80vw);z-index:6;font-size:.9rem}
 .taskbox ul{margin:6px 0 0;padding-left:18px;max-height:40vh;overflow:auto}
 .taskbox li{margin:2px 0}
 .taskbox li.done{color:var(--good)}
 .taskbox li.todo{color:var(--muted)}
 /* room transition card */
-.card{position:absolute;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;background:rgba(10,5,25,.82);backdrop-filter:blur(8px);padding:18px}
+.card{position:absolute;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;background:rgba(10,5,25,.88);padding:18px}
 .card .box{max-width:420px;width:100%;background:linear-gradient(180deg,#352457,#241640);border:1px solid var(--line);border-radius:24px;padding:22px 20px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:sheetUp .4s cubic-bezier(.2,.9,.3,1.1) both}
 .card h2{font-size:1.8rem}
 .card .story{font-family:'Patrick Hand',cursive;font-size:1.25rem;color:#efe6ff;line-height:1.35;margin:8px 0 12px}
@@ -208,7 +209,7 @@ canvas{display:block;width:100%;height:100%}
 .wordart.good{--wa:#7ee8a2}.wordart.bad{--wa:#ff8b8b}.wordart.gold{--wa:#ffd166;font-size:2.8rem}
 @keyframes waIn{from{opacity:0;transform:scale(.6) rotate(-4deg)}}
 @keyframes waOut{to{opacity:0;transform:translateY(-20px)}}
-@media (min-width:700px){.sheet{left:50%;right:auto;transform:translateX(-50%);width:520px}.chatlog{left:50%;transform:translateX(-50%);right:auto;width:420px}}
+@media (min-width:700px){.sheet{left:50%;right:auto;transform:translateX(-50%);width:520px}.topstack{left:50%;transform:translateX(-50%);right:auto;width:360px;max-width:360px}}
 @media (prefers-reduced-motion: reduce){.sheet,.wordart,.msg,.card .box{animation:none}}
 </style>
 </head>
@@ -298,8 +299,10 @@ canvas{display:block;width:100%;height:100%}
   </div>
   <div class="inv" id="inv"></div>
   <div class="taskbox hidden" id="taskbox"></div>
-  <div class="partner hidden" id="partner"></div>
-  <div class="chatlog" id="chatlog"></div>
+  <div class="topstack">
+    <div class="partner hidden" id="partner"></div>
+    <div class="chatlog" id="chatlog"></div>
+  </div>
   <div class="bottombar">
     <button id="btn-tasks" class="icon" type="button" title="Things to do" aria-label="Things to do"></button>
     <input id="inp-chat" placeholder="Say something to your partner…" maxlength="140" autocomplete="off">
@@ -317,7 +320,7 @@ canvas{display:block;width:100%;height:100%}
 <script>
 (() => {
 'use strict';
-const VERSION = '1.0';
+const VERSION = '1.1';
 const firebaseConfig = window.FIREBASE_CONFIG || {};
 const $ = (s, el) => (el || document).querySelector(s);
 const $$ = (s, el) => [...(el || document).querySelectorAll(s)];
@@ -449,10 +452,14 @@ const lobby = { refs: [], runs: {}, runRefs: {}, friends: {}, requests: {}, pres
 const WORLD_H = 720, FLOOR_Y = 520, WALK_MIN = 556, WALK_MAX = 700;
 const cv = $('#cv'), cx = cv.getContext('2d');
 let CW = 300, CH = 600, S = 1, OX = 0, OY = 0, DPR = 1;
+let BOT_INSET = 64;   // the chat bar; the world is fitted above it so no part of the floor sits under it
 function resize() {
   const st = $('#stage'); CW = st.clientWidth || window.innerWidth; CH = st.clientHeight || window.innerHeight; DPR = Math.min(2, window.devicePixelRatio || 1);
   cv.width = Math.round(CW * DPR); cv.height = Math.round(CH * DPR); cv.style.width = CW + 'px'; cv.style.height = CH + 'px';
-  S = Math.min(CH / WORLD_H, CW / 480); OY = (CH - WORLD_H * S) / 2; OX = 0;
+  const bar = document.querySelector('#screen-game .bottombar'); if (bar && bar.offsetHeight) BOT_INSET = bar.offsetHeight;
+  const avail = Math.max(240, CH - BOT_INSET);
+  S = Math.min(avail / WORLD_H, CW / 480); OY = Math.max(0, (avail - WORLD_H * S) / 2); OX = 0;
+  bgCache = null;
 }
 window.addEventListener('resize', resize);
 window.addEventListener('orientationchange', () => setTimeout(resize, 150));
@@ -480,7 +487,29 @@ function star(c, x, y, r, col) { c.beginPath(); for (let i = 0; i < 10; i++) { c
 function glow(c, x, y, r, col, a) { const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, rgba(col, a == null ? 0.55 : a)); g.addColorStop(1, rgba(col, 0)); c.fillStyle = g; c.fillRect(x - r, y - r, r * 2, r * 2); }
 
 /* ---------- the room backdrop ---------- */
+let bgCache = null;
+// The wall, floor, patterns and bunting never change, so they are painted once per room (at the
+// screen's own resolution) and copied each frame. Twinkling stars, turning gears and the fairy
+// lights are drawn live on top, and only the part in view.
 function drawBackdrop(c, room, t, camX, viewW) {
+  const W = room.w, k = S * DPR, PADX = 120, PADT = 200, PADB = 300;
+  if (!bgCache || bgCache.room !== room || bgCache.k !== k) {
+    const bc = document.createElement('canvas'); bc.width = Math.ceil((W + PADX * 2) * k); bc.height = Math.ceil((WORLD_H + PADT + PADB) * k);
+    const b = bc.getContext('2d'); b.setTransform(k, 0, 0, k, PADX * k, PADT * k);
+    drawBackdropStatic(b, room, -PADX, W + PADX * 2);
+    bgCache = { room, k, cv: bc };
+  }
+  // plain colour above and below the cached strip (only a very tall, narrow screen ever sees it)
+  c.fillStyle = room.pal.wall1; c.fillRect(camX - 50, -PADT - 900, viewW + 100, 901); c.fillStyle = room.pal.floor2; c.fillRect(camX - 50, WORLD_H + PADB - 1, viewW + 100, 900);
+  // copy the slice in view (the room is clamped to the camera, so the view never leaves it)
+  const x0 = Math.max(-PADX, camX - 50), x1 = Math.min(W + PADX, camX + viewW + 50);
+  if (x1 > x0) c.drawImage(bgCache.cv, (x0 + PADX) * k, 0, (x1 - x0) * k, bgCache.cv.height, x0, -PADT, x1 - x0, WORLD_H + PADT + PADB);
+  const p = room.pal;
+  if (room.deco === 'stars') { const rnd = mulberry32(7); for (let i = 0; i < 90; i++) { const x = rnd() * W, y = rnd() * (FLOOR_Y - 120), r = 1 + rnd() * 2; if (x < camX - 10 || x > camX + viewW + 10) continue; const tw = 0.5 + 0.5 * Math.sin(t * 2 + i); c.fillStyle = `rgba(255,255,255,${0.35 + 0.5 * tw})`; c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill(); } }
+  else if (room.deco === 'gears') { const rnd = mulberry32(3); for (let i = 0; i < 9; i++) { const x = rnd() * W, y = 40 + rnd() * 300, r = 30 + rnd() * 50, n = 8 + Math.floor(rnd() * 6), dir = i % 2 ? 1 : -1; if (x + r < camX || x - r > camX + viewW) continue; c.save(); c.translate(x, y); c.rotate(t * 0.3 * dir); c.fillStyle = rgba(p.trim, 0.16); c.beginPath(); for (let k2 = 0; k2 < n * 2; k2++) { const a = k2 / (n * 2) * Math.PI * 2, rad = k2 % 2 ? r : r * 0.8; c.lineTo(Math.cos(a) * rad, Math.sin(a) * rad); } c.closePath(); c.fill(); c.beginPath(); c.arc(0, 0, r * 0.3, 0, Math.PI * 2); c.fillStyle = rgba(p.wall2, 0.6); c.fill(); c.restore(); } }
+  if (room.lights !== false) { const xs = Math.max(30, Math.floor((camX - 30) / 60) * 60 + 30), xe = Math.min(W, camX + viewW + 30); for (let x = xs; x < xe; x += 60) { const on = Math.sin(t * 3 + x / 60) > -0.2; const col = ['#ffd166', '#ff6b9d', '#3ddcc7', '#9d7bff'][Math.round(x / 60) % 4]; if (on) glow(c, x, 100, 22, col, 0.5); circ(c, x, 100, 6, on ? col : '#555', { outline: false }); } }
+}
+function drawBackdropStatic(c, room, camX, viewW) {
   const p = room.pal, W = room.w;
   // wall (drawn beyond the room on both sides so a wide screen never shows bare canvas)
   const gw = c.createLinearGradient(0, -400, 0, FLOOR_Y); gw.addColorStop(0, p.wall1); gw.addColorStop(1, p.wall2);
@@ -489,9 +518,7 @@ function drawBackdrop(c, room, t, camX, viewW) {
   else if (room.deco === 'tent') { c.fillStyle = rgba(p.trim, 0.16); for (let x = -80; x < W + 80; x += 160) { c.beginPath(); c.moveTo(x, FLOOR_Y); c.lineTo(x + 80, -400); c.lineTo(x + 160, FLOOR_Y); c.closePath(); c.fill(); } }
   else if (room.deco === 'dots') { c.fillStyle = rgba(p.trim, 0.18); for (let x = 20; x < W; x += 70) for (let y = 30; y < FLOOR_Y - 40; y += 70) { c.beginPath(); c.arc(x + (y / 70 % 2) * 35, y, 7, 0, Math.PI * 2); c.fill(); } }
   else if (room.deco === 'bricks') { c.strokeStyle = rgba(p.trim, 0.22); c.lineWidth = 2; for (let y = 0; y < FLOOR_Y; y += 36) { c.beginPath(); c.moveTo(-50, y); c.lineTo(W + 50, y); c.stroke(); for (let x = (y / 36 % 2) * 50; x < W + 50; x += 100) { c.beginPath(); c.moveTo(x, y); c.lineTo(x, y + 36); c.stroke(); } } }
-  else if (room.deco === 'stars') { const rnd = mulberry32(7); for (let i = 0; i < 90; i++) { const x = rnd() * W, y = rnd() * (FLOOR_Y - 120), r = 1 + rnd() * 2, tw = 0.5 + 0.5 * Math.sin(t * 2 + i); c.fillStyle = `rgba(255,255,255,${0.35 + 0.5 * tw})`; c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill(); } }
   else if (room.deco === 'panels') { for (let x = 30; x < W - 30; x += 220) { rr(c, x, 60, 180, FLOOR_Y - 150, 18); c.fillStyle = rgba(p.trim, 0.12); c.fill(); c.strokeStyle = rgba(p.trim, 0.35); c.lineWidth = 3; c.stroke(); } }
-  else if (room.deco === 'gears') { const rnd = mulberry32(3); for (let i = 0; i < 9; i++) { const x = rnd() * W, y = 40 + rnd() * 300, r = 30 + rnd() * 50, n = 8 + Math.floor(rnd() * 6), dir = i % 2 ? 1 : -1; c.save(); c.translate(x, y); c.rotate(t * 0.3 * dir); c.fillStyle = rgba(p.trim, 0.16); c.beginPath(); for (let k = 0; k < n * 2; k++) { const a = k / (n * 2) * Math.PI * 2, rad = k % 2 ? r : r * 0.8; c.lineTo(Math.cos(a) * rad, Math.sin(a) * rad); } c.closePath(); c.fill(); c.beginPath(); c.arc(0, 0, r * 0.3, 0, Math.PI * 2); c.fillStyle = rgba(p.wall2, 0.6); c.fill(); c.restore(); } }
   else if (room.deco === 'candy') { c.fillStyle = rgba(p.trim, 0.2); for (let x = -40; x < W + 40; x += 120) { c.save(); c.translate(x, 0); c.rotate(-0.5); c.fillRect(0, -500, 40, 1400); c.restore(); } }
   // skirting / wall base
   const gb = c.createLinearGradient(0, FLOOR_Y - 26, 0, FLOOR_Y); gb.addColorStop(0, shade(p.wall2, -0.15)); gb.addColorStop(1, shade(p.wall2, -0.35)); c.fillStyle = gb; c.fillRect(camX - 50, FLOOR_Y - 26, viewW + 100, 26);
@@ -506,7 +533,6 @@ function drawBackdrop(c, room, t, camX, viewW) {
     for (let x = -40; x < W + 40; x += 48) { const i = Math.round(x / 48); c.beginPath(); c.moveTo(x, 40 + Math.sin(x / 90) * 6); c.lineTo(x + 24, 40 + Math.sin((x + 24) / 90) * 6); c.lineTo(x + 24, 72 + Math.sin((x + 24) / 90) * 6); c.lineTo(x, 40 + Math.sin(x / 90) * 6); c.closePath(); c.fillStyle = shade(cols[(i % 4 + 4) % 4], i % 2 ? 0.1 : -0.05); c.fill(); }
     c.strokeStyle = 'rgba(255,255,255,.45)'; c.lineWidth = 2; c.beginPath(); for (let x = -40; x < W + 40; x += 8) { const y = 40 + Math.sin(x / 90) * 6; if (x === -40) c.moveTo(x, y); else c.lineTo(x, y); } c.stroke();
   }
-  if (room.lights !== false) { for (let x = 30; x < W; x += 60) { const on = Math.sin(t * 3 + x / 60) > -0.2; const col = ['#ffd166', '#ff6b9d', '#3ddcc7', '#9d7bff'][Math.round(x / 60) % 4]; if (on) glow(c, x, 100, 22, col, 0.5); circ(c, x, 100, 6, on ? col : '#555', { outline: false }); } }
 }
 
 /* ---------- props: each drawer takes the object def, its live state and the time ---------- */
@@ -566,7 +592,19 @@ ART.vat = (c, o, st) => { const col = o.color || '#ff6b9d'; shadowEllipse(c, o.x
 ART.scale = (c, o, st) => { shadowEllipse(c, o.x, o.y + 2, 40, 0.16); soft(c, o.x - 30, o.y - 14, 60, 14, 6, '#c9962a'); line(c, o.x, o.y - 14, o.x, o.y - 80, '#8a6a2a', 8); const tilt = st.v || 0; c.save(); c.translate(o.x, o.y - 80); c.rotate(tilt * 0.25); line(c, -60, 0, 60, 0, '#8a6a2a', 6); for (const s of [-1, 1]) { line(c, s * 60, 0, s * 60, 30, '#8a6a2a', 2); c.beginPath(); c.ellipse(s * 60, 34, 24, 7, 0, 0, Math.PI * 2); c.fillStyle = '#ffd166'; c.fill(); } c.restore(); };
 ART.conveyor = (c, o, st, t) => { soft(c, o.x - o.w / 2, o.y - o.h, o.w, o.h, 10, '#4a5566'); c.save(); rr(c, o.x - o.w / 2 + 6, o.y - o.h + 6, o.w - 12, 16, 8); c.clip(); c.fillStyle = '#2b1f4a'; c.fillRect(o.x - o.w / 2, o.y - o.h, o.w, 30); c.fillStyle = 'rgba(255,255,255,.2)'; const off = (t * 40) % 24; for (let x = o.x - o.w / 2 - 24 + off; x < o.x + o.w / 2 + 24; x += 24) c.fillRect(x, o.y - o.h + 6, 10, 16); c.restore(); (o.items || []).forEach((it, i) => circ(c, o.x - o.w / 2 + 30 + i * ((o.w - 60) / Math.max(1, o.items.length - 1)), o.y - o.h - 2, 12, it)); };
 ART.valve = (c, o, st) => { const col = o.color || '#c41e1e', on = !!(st.held && Object.keys(st.held).length); line(c, o.x, o.y, o.x, o.y - 40, '#8a8fa3', 10); c.save(); c.translate(o.x, o.y - 56); c.rotate(on ? 0.6 : 0); circ(c, 0, 0, 24, col); for (let i = 0; i < 4; i++) { c.save(); c.rotate(i * Math.PI / 2); line(c, 0, 0, 0, -22, shade(col, -0.35), 5); c.restore(); } circ(c, 0, 0, 6, shade(col, 0.3)); c.restore(); };
-ART.puppet = (c, o, st, t) => { const col = o.color || '#ff7a59', sway = Math.sin(t * 1.3 + o.x) * 0.04; line(c, o.x, o.y - 170, o.x, o.y - 120, 'rgba(255,255,255,.5)', 1.5); c.save(); c.translate(o.x, o.y - 120); c.rotate(sway); circ(c, 0, -14, 16, '#ffd9b3'); soft(c, -16, 0, 32, 40, 10, col); const la = o.la == null ? 0.8 : o.la, ra = o.ra == null ? 0.8 : o.ra; line(c, -14, 6, -14 + Math.cos(Math.PI - la) * 30, 6 - Math.sin(Math.PI - la) * -30 * -1, '#ffd9b3', 6); line(c, 14, 6, 14 + Math.cos(ra) * 30, 6 + Math.sin(ra) * 30, '#ffd9b3', 6); line(c, -8, 40, -10, 70, shade(col, -0.3), 6); line(c, 8, 40, 10, 70, shade(col, -0.3), 6); c.fillStyle = '#1b1134'; c.beginPath(); c.arc(-5, -16, 2, 0, Math.PI * 2); c.arc(5, -16, 2, 0, Math.PI * 2); c.fill(); c.restore(); if (o.name) txt(c, o.name, o.x, o.y - 40, 13, '#fff3c4', 'center', 'Patrick Hand, cursive'); };
+ART.puppet = (c, o, st, t) => {
+  const col = o.color || '#ff7a59', sway = Math.sin(t * 1.3 + o.x) * 0.04;
+  line(c, o.x, o.y - 170, o.x, o.y - 120, 'rgba(255,255,255,.5)', 1.5);
+  c.save(); c.translate(o.x, o.y - 120); c.rotate(sway);
+  circ(c, 0, -14, 16, '#ffd9b3'); soft(c, -16, 0, 32, 40, 10, col);
+  const letter = typeof o.sema === 'function' ? o.sema(st) : o.sema; const pair = letter && SEMA[letter];
+  const arms = pair ? semaArms(pair) : [[-14, 0], [14, 0]];
+  arms.forEach(([sx, deg]) => { const r = deg * Math.PI / 180, x0 = sx < 0 ? -14 : 14, ex = x0 - Math.sin(r) * 30, ey = 6 + Math.cos(r) * 30; line(c, x0, 6, ex, ey, '#ffd9b3', 6); if (pair) line(c, ex, ey, ex - Math.sin(r) * 4, ey + Math.cos(r) * 4, '#c41e1e', 8); });
+  line(c, -8, 40, -10, 70, shade(col, -0.3), 6); line(c, 8, 40, 10, 70, shade(col, -0.3), 6);
+  c.fillStyle = '#1b1134'; c.beginPath(); c.arc(-5, -16, 2, 0, Math.PI * 2); c.arc(5, -16, 2, 0, Math.PI * 2); c.fill();
+  c.restore();
+  if (o.name) txt(c, o.name, o.x, o.y - 40, 13, '#fff3c4', 'center', 'Patrick Hand, cursive');
+};
 ART.rope = (c, o, st) => { const held = !!(st.held && Object.keys(st.held).length); line(c, o.x, o.y - o.h, o.x, o.y - (held ? 10 : 40), '#c9a56a', 6); for (let y = o.y - o.h + 10; y < o.y - 40; y += 10) line(c, o.x - 3, y, o.x + 3, y + 6, '#8a6a2a', 2); circ(c, o.x, o.y - (held ? 6 : 36), 10, '#c41e1e'); };
 ART.gondola = (c, o, st, t) => { const col = o.color || '#ff6b9d'; line(c, o.x, o.y - 70, o.x, o.y - 40, '#333', 3); soft(c, o.x - 28, o.y - 40, 56, 44, 14, col); rr(c, o.x - 20, o.y - 32, 40, 16, 6); c.fillStyle = 'rgba(255,255,255,.4)'; c.fill(); if (o.num != null) txt(c, String(o.num), o.x, o.y - 10, 15, '#1b1134'); };
 ART.bigwheel = (c, o, st, t) => { const a = (st.v || 0) * Math.PI / 6 + (st.spin ? t : 0); c.save(); c.translate(o.x, o.y); line(c, -70, 200, 0, 0, '#5a6a7a', 10); line(c, 70, 200, 0, 0, '#5a6a7a', 10); c.rotate(a); c.beginPath(); c.arc(0, 0, o.r, 0, Math.PI * 2); c.strokeStyle = '#ffd166'; c.lineWidth = 8; c.stroke(); for (let i = 0; i < 12; i++) { const ang = i / 12 * Math.PI * 2; line(c, 0, 0, Math.cos(ang) * o.r, Math.sin(ang) * o.r, 'rgba(255,255,255,.5)', 3); } c.restore(); for (let i = 0; i < 12; i++) { const ang = i / 12 * Math.PI * 2 + a, gx = o.x + Math.cos(ang) * o.r, gy = o.y + Math.sin(ang) * o.r; soft(c, gx - 16, gy, 32, 26, 9, ['#ff6b9d', '#3ddcc7', '#ffd166', '#9d7bff'][i % 4]); txt(c, String(i + 1), gx, gy + 13, 12, '#1b1134'); } circ(c, o.x, o.y, 18, '#ffd166'); };
@@ -582,7 +620,10 @@ ART.window = (c, o, st, t) => { soft(c, o.x - 8, o.y - 8, o.w + 16, o.h + 16, 10
 ART.chandelier = (c, o, st, t) => { line(c, o.x, 0, o.x, o.y, '#c9a56a', 3); circ(c, o.x, o.y, 10, '#c9a56a'); for (let i = -2; i <= 2; i++) { const x = o.x + i * 30, y = o.y + 20 + Math.abs(i) * 8; line(c, o.x, o.y, x, y, '#c9a56a', 3); circ(c, x, y - 2, 6, '#ffd166', { outline: false }); glow(c, x, y - 6, 40, '#ffd166', 0.3 + 0.05 * Math.sin(t * 6 + i)); } };
 ART.pipe = (c, o) => { line(c, o.x, o.y, o.x + o.w, o.y, o.color || '#8a8fa3', 14); line(c, o.x, o.y, o.x + o.w, o.y, 'rgba(255,255,255,.25)', 4); circ(c, o.x, o.y, 11, shade(o.color || '#8a8fa3', -0.2)); circ(c, o.x + o.w, o.y, 11, shade(o.color || '#8a8fa3', -0.2)); };
 ART.switch = (c, o, st) => { const on = st.v === true; soft(c, o.x, o.y, o.w, o.h, 8, o.color || '#4a5566'); rr(c, o.x + 8, o.y + 8, o.w - 16, o.h - 16, 6); c.fillStyle = on ? '#7ee8a2' : '#2b1f4a'; c.fill(); soft(c, o.x + 12, on ? o.y + 10 : o.y + o.h / 2, o.w - 24, o.h / 2 - 12, 5, on ? '#b9ffd0' : '#8d7bc9'); };
-ART.statue = (c, o) => { shadowEllipse(c, o.x, o.y + 2, 30, 0.16); soft(c, o.x - 30, o.y - 24, 60, 24, 6, '#8a8fa3'); c.save(); c.translate(o.x, o.y - 24); drawPersonShape(c, { col: o.color || '#cfd3d8', col2: '#e8ecf0', skin: '#dfe3e8', f: 1, walk: 0, t: 0, pose: o.pose || 'tada', stone: true }, 0.9); c.restore(); };
+ART.statue = (c, o) => {
+  const letters = (o.sema || 'K').split(''), gap = 74, x0 = o.x - (letters.length - 1) * gap / 2;
+  letters.forEach((ch, i) => { const x = x0 + i * gap; shadowEllipse(c, x, o.y + 2, 30, 0.16); soft(c, x - 30, o.y - 24, 60, 24, 6, '#8a8fa3'); c.save(); c.translate(x, o.y - 24); drawPersonShape(c, { col: o.color || '#cfd3d8', col2: '#e8ecf0', skin: '#dfe3e8', f: 1, walk: 0, t: 0, arms: SEMA[ch] || SEMA.K, stone: true }, 0.9); c.restore(); });
+};
 // Morse: on/off over time for a word, looping (dot 1 unit, dash 3, gap 1, letter gap 3, word gap 7)
 function morseOn(word, t, unit) { unit = unit || 0.28; const seq = []; word.toUpperCase().split(' ').forEach((w, wi) => { if (wi) seq.push([0, 7]); w.split('').forEach((ch, ci) => { if (ci) seq.push([0, 3]); (MORSE[ch] || '').split('').forEach((m, mi) => { if (mi) seq.push([0, 1]); seq.push([1, m === '.' ? 1 : 3]); }); }); }); seq.push([0, 10]); const total = seq.reduce((a, s) => a + s[1], 0) * unit; let k = t % total; for (const [on, d] of seq) { if (k < d * unit) return !!on; k -= d * unit; } return false; }
 ART.bulbs = (c, o, st, t) => { const n = o.n || 8, pat = (o.pattern || '').padEnd(n, '1'); soft(c, o.x, o.y, o.w, o.h, 10, o.color || '#4a3a6a', { gloss: false }); for (let i = 0; i < n; i++) { const lit = pat[i] === '1' && (!o.onIf || st.s === 'on' || st.v === true); const x = o.x + (i + 0.5) * o.w / n, y = o.y + o.h / 2; if (lit) glow(c, x, y, o.h * 0.9, o.lit || '#ffd166', 0.5); circ(c, x, y, o.h * 0.26, lit ? (o.lit || '#ffd166') : '#2b1f4a'); } };
@@ -608,9 +649,12 @@ function drawPersonShape(c, p, sc) {
   rr(c, -24, -94, 48, 64, 22); c.fillStyle = g; c.fill(); c.lineWidth = 3; c.strokeStyle = shade(col, -0.45); c.stroke();
   rr(c, -14, -78, 28, 36, 14); c.fillStyle = col2; c.fill();
   // arms
-  const reach = p.pose === 'reach' ? -1.3 : p.pose === 'tada' ? -2.4 : p.pose === 'hold' ? -0.6 : 0;
-  const aL = (reach || swing * -0.8) + 0.35, aR = (reach || swing * 0.8) - 0.35;
-  for (const [sx, a] of [[-22, aL], [22, aR]]) { const ex = sx + Math.sin(a) * 30 * Math.sign(sx) * (reach ? 1 : 1), ey = -74 + Math.cos(a) * 30; line(c, sx, -78, ex, ey, shade(col, -0.1), 11); circ(c, ex, ey, 8, skin, { outline: false }); }
+  if (p.arms) { semaArms(p.arms).forEach(([sx, deg]) => { const r = deg * Math.PI / 180, ex = sx - Math.sin(r) * 34, ey = -78 + Math.cos(r) * 34; line(c, sx, -78, ex, ey, shade(col, -0.1), 11); circ(c, ex, ey, 8, skin, { outline: false }); }); }
+  else {
+    const reach = p.pose === 'reach' ? -1.3 : p.pose === 'tada' ? -2.4 : p.pose === 'hold' ? -0.6 : 0;
+    const aL = (reach || swing * -0.8) + 0.35, aR = (reach || swing * 0.8) - 0.35;
+    for (const [sx, a] of [[-22, aL], [22, aR]]) { const ex = sx + Math.sin(a) * 30 * Math.sign(sx) * (reach ? 1 : 1), ey = -74 + Math.cos(a) * 30; line(c, sx, -78, ex, ey, shade(col, -0.1), 11); circ(c, ex, ey, 8, skin, { outline: false }); }
+  }
   // head
   const hx = -lean * 8, hy = -116 + Math.sin(t * 2.2) * 1.5;
   circ(c, hx, hy, 24, skin, { lit: 0.2, dark: -0.12, lw: 3, stroke: shade(skin, -0.45) });
@@ -623,6 +667,14 @@ function drawPersonShape(c, p, sc) {
   else if (p.hat === 'top') { soft(c, hx - 28, hy - 22, 56, 10, 5, p.hatCol || '#1b1134'); soft(c, hx - 18, hy - 56, 36, 36, 6, p.hatCol || '#1b1134'); }
   else if (p.hat === 'bow') { star(c, hx - 18, hy - 20, 11, p.hatCol || '#ffd166'); }
   c.restore(); c.restore();
+}
+// Semaphore arm pairs, as [shoulderX, degrees]: an arm pointing to the viewer's left comes off the
+// left shoulder, one pointing right off the right shoulder, and straight up or down takes the free one.
+function semaArms(pair) {
+  const out = []; let left = false, right = false;
+  const side = d => d > 0 && d < 180 ? 'L' : d > 180 && d < 360 ? 'R' : null;
+  pair.forEach(d => { const sd = side(d); if (sd === 'L' && !left) { left = true; out.push([-22, d]); } else if (sd === 'R' && !right) { right = true; out.push([22, d]); } else out.push([null, d]); });
+  return out.map(([sx, d]) => { if (sx != null) return [sx, d]; if (!left) { left = true; return [-22, d]; } right = true; return [22, d]; });
 }
 const PALETTES = [
   { col: '#ff7a59', col2: '#ffd166', skin: '#ffd9b3', hair: '#4a2a1a', hat: 'cap', hatCol: '#3ddcc7' },
@@ -638,9 +690,9 @@ function drawPerson(c, p, t) {
   // name tag and speech bubble
   const top = p.y - 150 * dsc(p.y);
   if (p.bubble && t < p.bubbleUntil) {
-    c.font = '600 15px Nunito, sans-serif'; const w = Math.min(260, c.measureText(p.bubble).width + 22); const lines = wrapText(c, p.bubble, 240);
-    const h = 14 + lines.length * 19; rr(c, p.x - w / 2, top - 24 - h, w, h, 12); c.fillStyle = 'rgba(255,255,255,.95)'; c.fill(); c.beginPath(); c.moveTo(p.x - 6, top - 24); c.lineTo(p.x + 6, top - 24); c.lineTo(p.x, top - 14); c.closePath(); c.fill();
-    lines.forEach((l, i) => txt(c, l, p.x, top - 24 - h + 16 + i * 19, 15, '#1b1134', 'center', 'Nunito, sans-serif', 600));
+    const bx = p.x + 26, by = top - 34 + Math.sin(t * 5) * 1.5;
+    rr(c, bx - 17, by - 9, 34, 18, 9); c.fillStyle = 'rgba(255,255,255,.95)'; c.fill(); c.beginPath(); c.moveTo(bx - 10, by + 8); c.lineTo(bx - 2, by + 8); c.lineTo(bx - 11, by + 15); c.closePath(); c.fill();
+    for (let i = -1; i <= 1; i++) { const on = Math.floor(t * 4) % 3 === i + 1; c.beginPath(); c.arc(bx + i * 9, by, on ? 3.2 : 2.4, 0, Math.PI * 2); c.fillStyle = on ? '#1b1134' : '#8a86a0'; c.fill(); }
   }
   if (p.name) { c.font = '700 13px Fredoka, sans-serif'; const w = c.measureText(p.name).width + 16; rr(c, p.x - w / 2, top - 18, w, 20, 10); c.fillStyle = rgba(p.pal.col, 0.85); c.fill(); txt(c, p.name, p.x, top - 8, 13, '#1b1134'); }
 }
@@ -795,7 +847,7 @@ function loadLevel(n) {
   G.level = n; G.room = ROOMS[n - 1] || null; G.objs = {}; G.sheetObj = null; closeSheet(); G.shown = new Set(); G.pings = [];
   if (!G.room) { showFinale(); return; }
   G.room.objects.forEach(o => { G.objs[o.id] = o; if (o.on == null) o.on = FLOOR_TYPES.has(o.type) ? 'floor' : 'wall'; if (o.w == null) o.w = 60; if (o.h == null) o.h = 60; });
-  const start = G.room.start || { x: 160, y: 640 }; G.me.x = start.x + (G.seat === 'B' ? 80 : 0); G.me.y = start.y + (G.seat === 'B' ? 20 : 0); G.me.f = 1; G.target = null; G.pending = null; G.camX = 0;
+  const start = G.room.start || { x: 160, y: 640 }; G.me.x = start.x + (G.seat === 'B' ? 80 : 0); G.me.y = start.y + (G.seat === 'B' ? 20 : 0); G.me.f = 1; G.target = null; G.pending = null; G.camAhead = 0; G.camX = camWant(G.me.x);
   const upd = { [`players/${G.me.uid}/lv`]: n, [`players/${G.me.uid}/x`]: Math.round(G.me.x), [`players/${G.me.uid}/y`]: Math.round(G.me.y) };
   if (!lvState().startedAt) upd[`lv/${n}/startedAt`] = G.solo ? Date.now() : TS();
   G.store.update(upd).catch(() => {});
@@ -808,6 +860,7 @@ const FLOOR_TYPES = new Set(['item', 'chest', 'crate', 'barrel', 'safe', 'desk',
 
 /* ---------- movement and the frame loop ---------- */
 let lastFrame = 0;
+const camWant = x => { const viewW = CW / S; return clamp(x - viewW / 2, 0, Math.max(0, (G.room ? G.room.w : 0) - viewW)); };
 function frame(ts) {
   const dt = Math.min(0.05, (ts - lastFrame) / 1000 || 0.016); lastFrame = ts; G.t += dt;
   if ($('#screen-game').classList.contains('active') && G.room) { update(dt); render(); }
@@ -825,8 +878,11 @@ function update(dt) {
   if (G.store && G.t - G.lastPosWrite > 0.12) { const key = `${Math.round(me.x)},${Math.round(me.y)},${me.f}`; if (key !== G.lastPosSent) { G.lastPosSent = key; G.lastPosWrite = G.t; G.store.pos(me.x, me.y, me.f).catch(() => {}); } }
   // partner glides to the last place we heard of
   const p = G.partner; if (p) { const dx = p.tx - p.x, dy = p.ty - p.y, d = Math.hypot(dx, dy); if (d > 2) { const step = Math.min(d, sp * 1.1 * dt); p.x += dx / d * step; p.y += dy / d * step; p.walk = 1; } else { p.x = p.tx; p.y = p.ty; p.walk = Math.max(0, p.walk - dt * 6); } }
-  // camera follows me
-  const viewW = CW / S; const want = clamp(me.x - viewW / 2, 0, Math.max(0, G.room.w - viewW)); G.camX = lerp(G.camX, want, 1 - Math.pow(0.001, dt));
+  // camera: keeps me near the middle, looks a little ahead of where I am walking, eases in and
+  // out, and stops dead at the room's edges so the view never shows past the walls
+  if (G.target && me.walk > 0.2) G.camAhead = lerp(G.camAhead || 0, me.f * Math.min(60, CW / S * 0.1), 1 - Math.pow(0.05, dt));   // the lead stays where it is once I stop
+  const want = camWant(me.x + G.camAhead);
+  G.camX += (want - G.camX) * (1 - Math.pow(0.002, dt)); if (Math.abs(want - G.camX) < 0.25) G.camX = want;
   if (G.holding && G.t - G.holdT > 0.6) { G.holdT = G.t; writeHold(G.holding, true); }
   if (G.sheetObj && !nearMe(G.sheetObj) && !G.target) closeSheet();
 }
@@ -872,7 +928,7 @@ cv.addEventListener('pointerup', ev => {
   if (!pdown || !G.room) { pdown = null; return; }
   const held = Date.now() - pdown.t, w = pdown.w; const moved = pdown.moved; pdown = null;
   if (moved) return;
-  if (held > 450) { sendPing(w.x, w.y); return; }
+  if (held > 600) { sendPing(w.x, w.y); return; }
   sfx.unlock();
   const hit = G.room.objects.filter(o => vis(o) && o.type !== 'rail').map(o => ({ o, r: hitRect(o) })).filter(h => w.x >= h.r.x && w.x <= h.r.x + h.r.w && w.y >= h.r.y && w.y <= h.r.y + h.r.h).sort((a, b) => (b.o.on === 'floor') - (a.o.on === 'floor'))[0];
   if (hit) { const o = hit.o; const sp = standPoint(o); if (nearMe(o)) { G.target = null; openSheet(o); } else { G.target = sp; G.pending = o.id; closeSheet(); } return; }
@@ -1134,8 +1190,8 @@ $('#inv').addEventListener('click', e => { const b = e.target.closest('[data-ite
 /* ---------- chat ---------- */
 function showChat(m) {
   const who = m.by === G.me.uid ? 'You' : ((G.run.players || {})[m.by] || {}).name || '?';
-  const el = document.createElement('div'); el.className = 'msg' + (m.by === G.me.uid ? ' mine' : ''); el.innerHTML = `<b>${esc(who)}</b>${esc(m.text)}`; const log = $('#chatlog'); log.appendChild(el); while (log.children.length > 4) log.firstChild.remove(); setTimeout(() => el.remove(), 14000);
-  const p = m.by === G.me.uid ? G.me : G.partner; if (p) { p.bubble = m.text; p.bubbleUntil = G.t + 6; }
+  const el = document.createElement('div'); el.className = 'msg' + (m.by === G.me.uid ? ' mine' : ''); el.innerHTML = `<b>${esc(who)}</b>${esc(m.text)}`; const log = $('#chatlog'); log.appendChild(el); while (log.children.length > 3) log.firstChild.remove(); setTimeout(() => el.remove(), 10000);
+  const p = m.by === G.me.uid ? G.me : G.partner; if (p) { p.bubble = m.text; p.bubbleUntil = G.t + 3; }
   if (m.by !== G.me.uid) sfx.chat();
 }
 async function sendChat() { const inp = $('#inp-chat'), text = inp.value.trim(); if (!text || !G.store) return; inp.value = ''; if (G.solo) { showChat({ by: 'me', text }); return; } try { await G.store.chat(text); } catch (e) { toast(friendlyDb(e)); } }
@@ -1469,12 +1525,12 @@ ROOMS.push({
   objects: [
     { id: 'sign6', type: 'board', x: 50, y: 150, w: 220, h: 130, label: 'Notice', text: 'CANDY FACTORY', lines: ['mixed by hand'], task: 'Read the notice', look: 'Chalk, slightly sticky.', clue: { title: 'Management', text: 'Mixed by hand: one knows the recipe, one knows the mixing.\nThe balance tells the truth in two weighings.\nThe mould needs both valves at once.' } },
     { id: 'mixchart', type: 'poster', x: 320, y: 140, w: 170, h: 220, label: 'Mixing chart', text: 'MIXING', motif: 'lines', visibleTo: 'A', task: 'Study the mixing chart', look: 'How to make the colours you cannot buy.', clue: { title: 'Mixing', table: [['Red + Yellow', 'Orange'], ['Blue + Yellow', 'Green'], ['Red + Blue', 'Purple']] } },
-    { id: 'recipe', type: 'note', x: 540, y: 380, w: 100, h: 70, label: 'Recipe card', visibleTo: 'B', task: 'Read the recipe', look: 'Tonight’s recipe, in a sticky hand.', clue: { title: 'Tonight’s rock', text: 'Orange, Green, Purple, Orange.\nPour them in that order.' } },
+    { id: 'recipe', type: 'note', x: 540, y: 380, w: 100, h: 70, label: 'Recipe card', visibleTo: 'B', task: 'Read the recipe', look: 'Tonight’s recipe, in a sticky hand.', clue: { title: 'Tonight’s rock', text: 'Red with yellow.\nThen blue with yellow.\nThen red with blue.\nThen red with yellow again.\nEach pair makes one colour. Pour the four colours in that order.' } },
     { id: 'vat1', type: 'vat', x: 760, y: 690, w: 90, h: 110, color: '#ff4a4a', text: 'RED', label: 'Red vat', look: 'A vat of red. Bubbling.' },
     { id: 'vat2', type: 'vat', x: 880, y: 690, w: 90, h: 110, color: '#ffd166', text: 'YEL', label: 'Yellow vat', look: 'A vat of yellow. Lemony.' },
     { id: 'vat3', type: 'vat', x: 1000, y: 690, w: 90, h: 110, color: '#4a8bff', text: 'BLUE', label: 'Blue vat', look: 'A vat of blue. Don’t ask what flavour blue is.' },
     { id: 'vatpanel', type: 'panel', x: 820, y: 240, w: 120, h: 130, label: 'Pour panel', kind: 'colors', task: 'Pour the rock', look: 'Six colour buttons over the vats: red, yellow, blue, orange, green, purple. Pour in order.', solvedLook: 'The rock pours perfectly. A hatch opens on the second valve.',
-      lock: { kind: 'colors', len: 4, palette: CANDY, answer: 'f1c23s', hints: D(['T25lIG9mIHlvdSBoYXMgdGhlIHJlY2lwZSwgdGhlIG90aGVyIHRoZSBtaXhpbmcgY2hhcnQuIFRoZSBidXR0b25zIGFscmVhZHkgaW5jbHVkZSB0aGUgbWl4ZWQgY29sb3Vycy4=', 'T3JhbmdlLCBncmVlbiwgcHVycGxlLCBvcmFuZ2Uu', 'T3JhbmdlLCBncmVlbiwgcHVycGxlLCBvcmFuZ2U6IHRoZSA0dGgsIDV0aCwgNnRoIGFuZCA0dGggYnV0dG9ucy4=']), solvedText: 'Perfect pour!', onSolve: ['reveal:valve_b'] } },
+      lock: { kind: 'colors', len: 4, palette: CANDY, answer: 'f1c23s', hints: D(['T25lIG9mIHlvdSBoYXMgdGhlIHJlY2lwZSBhcyBwYWlycyBvZiBjb2xvdXJzOyB0aGUgb3RoZXIgaGFzIHRoZSBjaGFydCB0aGF0IHNheXMgd2hhdCBlYWNoIHBhaXIgbWFrZXMu', 'RWFjaCBwYWlyIG1peGVzIHRvIG9uZSBjb2xvdXI6IG9yYW5nZSwgZ3JlZW4sIHB1cnBsZSwgb3JhbmdlLg==', 'T3JhbmdlLCBncmVlbiwgcHVycGxlLCBvcmFuZ2U6IHRoZSA0dGgsIDV0aCwgNnRoIGFuZCA0dGggYnV0dG9ucy4=']), solvedText: 'Perfect pour!', onSolve: ['reveal:valve_b'] } },
     { id: 'weightsnote', type: 'note', x: 1140, y: 380, w: 100, h: 70, label: 'Puzzle card', task: 'Read the puzzle card', look: 'A card tied to the balance.', clue: { title: 'The balance', text: 'Nine wrapped sweets, all alike, one a little heavier.\nYou may use the balance only twice.\nHow many go in each pan the first time?\nTurn the dial to the answer.' } },
     { id: 'scale', type: 'scale', x: 1200, y: 690, w: 130, h: 110, label: 'Balance', task: 'Set the balance dial', look: 'A brass balance with a numbered dial on its base, 0 to 9.', solvedLook: 'The drawer under the balance is open.',
       lock: { kind: 'dials', len: 1, alphabet: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], answer: '150lolc', hints: D(['U3BsaXQgbmluZSBpbnRvIHRocmVlIGdyb3VwcyBhbmQgd2VpZ2ggdHdvIG9mIHRoZW0gYWdhaW5zdCBlYWNoIG90aGVyLg==', 'VGhyZWUgYWdhaW5zdCB0aHJlZSB0ZWxscyB5b3Ugd2hpY2ggdGhyZWUgaGFzIHRoZSBoZWF2eSBvbmU7IHRoZW4gb25lIGFnYWluc3Qgb25lLg==', 'VGhyZWUu']), solvedText: 'A drawer clicks open under the balance.', onSolve: ['open:weighdrawer'] } },
@@ -1507,10 +1563,10 @@ ROOMS.push({
     { id: 'rope_b', type: 'rope', x: 1560, y: 520, w: 30, h: 200, label: 'Right curtain rope', hold: true, holdText: 'Pull and hold', task: 'Pull the right rope', look: 'The other gold rope, a stage-width away.' },
     { id: 'curtain', type: 'curtain', x: 420, y: 130, w: 1120, h: 390, label: 'Curtain', holdAll: ['rope_a', 'rope_b'], onSolve: ['open:curtain'], solvedText: 'The curtain rises!', task: 'Raise the curtain', look: 'A velvet curtain across the whole stage.', openLook: 'The curtain is up. Four marionettes hang on the stage, and a hatch is set into the boards.' },
     { id: 'semachart', type: 'poster', x: 1700, y: 130, w: 200, h: 280, label: 'Flag chart', text: 'FLAGS', motif: 'lines', visibleTo: 'B', task: 'Study the flag chart', look: 'A chart of little figures holding their arms at angles, a letter under each.', clue: { title: 'Arm signals', semaKey: true, tiny: true } },
-    { id: 'p1', type: 'puppet', x: 560, y: 560, w: 60, h: 180, name: 'Pip', color: '#ff7a59', la: 0, ra: Math.PI, label: 'Puppet 1', showIf: (st, lv) => curtainOpen(lv), task: 'Read puppet 1', look: 'Pip. One arm straight down, one straight up.', clue: { title: 'Pip’s arms', sema: 'D' } },
-    { id: 'p2', type: 'puppet', x: 760, y: 560, w: 60, h: 180, name: 'Rosa', color: '#3ddcc7', la: 0.8, ra: 0.8, label: 'Puppet 2', showIf: (st, lv) => curtainOpen(lv), task: 'Read puppet 2', look: 'Rosa. Arms out to the sides, level.', clue: { title: 'Rosa’s arms', sema: 'R' } },
-    { id: 'p3', type: 'puppet', x: 960, y: 560, w: 60, h: 180, name: 'Ugo', color: '#9d7bff', la: 0.3, ra: 1.2, label: 'Puppet 3', showIf: (st, lv) => curtainOpen(lv), task: 'Read puppet 3', look: 'Ugo. One arm up and out, one down and out.', clue: { title: 'Ugo’s arms', sema: 'U' } },
-    { id: 'p4', type: 'puppet', x: 1160, y: 560, w: 60, h: 180, name: 'Mab', color: '#ffd166', la: 0.1, ra: 0.1, label: 'Puppet 4', showIf: (st, lv) => curtainOpen(lv), task: 'Mend puppet 4', taskWhen: 'used', look: st => st.used && st.used.golden_thread ? 'Mab, restrung. One arm up and out, the other out to the side.' : 'Mab. Her strings are cut and her arms hang useless.', clueIf: st => !!(st.used && st.used.golden_thread), clue: { title: 'Mab’s arms', sema: 'M' }, use: { golden_thread: { text: 'You restring the arms. Mab lifts them into a pose.', art: 'Restrung' } } },
+    { id: 'p1', type: 'puppet', x: 560, y: 560, w: 60, h: 180, name: 'Pip', color: '#ff7a59', sema: 'D', label: 'Puppet 1', showIf: (st, lv) => curtainOpen(lv), task: 'Read puppet 1', look: 'Pip. One arm straight down, one straight up.', clue: { title: 'Pip’s arms', sema: 'D' } },
+    { id: 'p2', type: 'puppet', x: 760, y: 560, w: 60, h: 180, name: 'Rosa', color: '#3ddcc7', sema: 'R', label: 'Puppet 2', showIf: (st, lv) => curtainOpen(lv), task: 'Read puppet 2', look: 'Rosa. Arms out to the sides, level.', clue: { title: 'Rosa’s arms', sema: 'R' } },
+    { id: 'p3', type: 'puppet', x: 960, y: 560, w: 60, h: 180, name: 'Ugo', color: '#9d7bff', sema: 'U', label: 'Puppet 3', showIf: (st, lv) => curtainOpen(lv), task: 'Read puppet 3', look: 'Ugo. Both arms raised, up and out.', clue: { title: 'Ugo’s arms', sema: 'U' } },
+    { id: 'p4', type: 'puppet', x: 1160, y: 560, w: 60, h: 180, name: 'Mab', color: '#ffd166', sema: st => st.used && st.used.golden_thread ? 'M' : null, label: 'Puppet 4', showIf: (st, lv) => curtainOpen(lv), task: 'Mend puppet 4', taskWhen: 'used', look: st => st.used && st.used.golden_thread ? 'Mab, restrung. One arm down and out, the other straight out to the side.' : 'Mab. Her strings are cut and her arms hang useless.', clueIf: st => !!(st.used && st.used.golden_thread), clue: { title: 'Mab’s arms', sema: 'M' }, use: { golden_thread: { text: 'You restring the arms. Mab lifts them into a pose.', art: 'Restrung' } } },
     { id: 'script', type: 'note', x: 300, y: 380, w: 100, h: 90, label: 'Script', visibleTo: 'A', task: 'Read the script', look: 'A page of the play. The first letter of each line has been underlined.', clue: { title: 'Act I, Scene 2', text: 'Under the lamps the old man waits\nNo sound but the rope\nDarkness, then a drum\nEvery eye on the curtain\nRosa steps forward\n\nThe margin says: read me down.' } },
     { id: 'hatch', type: 'hatch', x: 860, y: 690, w: 110, h: 40, label: 'Stage hatch', showIf: (st, lv) => curtainOpen(lv), task: 'Open the stage hatch', look: 'A hatch in the boards with a word slot.', openLook: 'Open. A golden thread lay coiled inside; you took it.',
       lock: { kind: 'riddle', len: 14, placeholder: 'where?', answers: ['1077wuf', '1szyjf0', 'mftcbn'], hints: D(['VGhlIHNjcmlwdOKAmXMgZmlyc3QgbGV0dGVycyBzYXkgd2hlcmUu', 'VSwgTiwgRCwgRSwgUi4=', 'VU5ERVIu']), solvedText: 'The hatch pops.', onSolve: ['open:hatch', 'give:golden_thread'] } },
@@ -1548,7 +1604,7 @@ ROOMS.push({
       lock: { kind: 'keypad', len: 2, answer: 'ggdtq3', hints: D(['VGhlIGh1YiBidWxicyBhcmUgYSBudW1iZXIgaW4gYmluYXJ5OyB0aGUgbm90ZSBvbiB0aGUgaHV0IHNheXMgaG93Lg==', 'MDEwMDEwMTE6IDY0ICsgOCArIDIgKyAxLg==', 'NzUu']), solvedText: 'The hut door opens.', onSolve: ['reveal:oplever'] } },
     { id: 'oplever', type: 'lever', x: 1240, y: 690, w: 60, h: 90, label: 'Operator’s lever', hidden: true, hold: true, holdText: 'Hold the lever (the wheel turns)', task: 'Hold the operator’s lever', look: st => st.used && st.used.spanner ? 'The lever, bolted tight. Hold it and the wheel turns.' : 'The lever hangs loose on its pin. It needs a bolt tightening.', use: { spanner: { text: 'You tighten the bolt. The lever is firm.', art: 'Tight', consume: false } }, holdIf: st => !!(st.used && st.used.spanner), knob: '#ffd166' },
     { id: 'gondola', type: 'gondola', x: 1400, y: 560, w: 60, h: 60, num: 1, color: '#ff6b9d', label: 'Bottom gondola', standY: 640, task: 'Ride to the top', requires: 'opbox', lockedText: 'The gondola is chained until the operator’s box is open.', look: 'The gondola at the bottom. It only rises while someone holds the lever.',
-      action: { label: 'Ride to the top', needsHold: ['oplever'], hint: 'Someone has to hold the operator’s lever while you ride.', effects: ['reveal:topplaque'], art: 'Up you go!', sfx: 'door' } },
+      action: { label: 'Ride to the top', needsHold: ['oplever'], hint: 'Someone has to hold the operator’s lever while you ride.', effects: ['reveal:topplaque', 'say:At the top, a brass plaque on the frame is within reach, as long as the lever stays held.'], art: 'Up you go!', sfx: 'door' } },
     { id: 'topplaque', type: 'note', x: 1540, y: 110, w: 110, h: 70, label: 'Plaque at the top', hidden: true, task: 'Read the plaque at the top', showIf: (st, lv) => { const h = ((lv.obj || {}).oplever || {}).held || {}; const t = Date.now(); return Object.values(h).some(ts => t - ts < 2600) || !!st.read; }, look: 'A brass plaque bolted to the top of the frame, only readable from the top gondola.', clue: { title: 'Plaque', text: 'THE GATE OPENS FOR THE YEAR\nTHIS WHEEL WAS BUILT,\nREAD BACKWARDS.' } },
     { id: 'lamppost', type: 'lamp', x: 1800, y: 600, w: 40, h: 100, label: 'Lamp post', startOff: true, toggle: true, toggleOn: 'Switch the lamp on', toggleOff: 'Switch it off', task: 'Light the lamp post', taskWhen: 'on', look: st => st.v ? 'The lamp post lights the foot of the wheel. A stone at its base has writing.' : 'A lamp post with a switch at the bottom.', onOn: ['reveal:stone'] },
     { id: 'stone', type: 'grave', x: 1880, y: 690, w: 90, h: 70, text: 'ERECTED', text2: '1927', label: 'Foundation stone', hidden: true, task: 'Read the foundation stone', look: 'ERECTED 1927, says the stone.' },
@@ -1614,7 +1670,7 @@ ROOMS.push({
     { id: 'blinklamp', type: 'lantern', x: 1150, y: 300, w: 30, h: 40, morse: '741', label: 'Blinking lamp', task: 'Read the blinking lamp', look: 'A lamp blinking three numbers, over and over.', clue: { title: 'The blinks', morse: '--...  ....-  .----', after: 'Then it starts again.' } },
     { id: 'seal3', type: 'panel', x: 1120, y: 160, w: 90, h: 110, label: 'Seal III', kind: 'keypad', task: 'Break seal III', look: 'The third seal: a three-digit keypad.', lock: { kind: 'keypad', len: 3, answer: '1qpoml7', hints: D(['VGhlIGxhbXAgYmxpbmtzIG51bWJlcnM7IHRoZSBjaGFydCBoYXMgbnVtYmVycyB0b28u', 'RGFzaCBkYXNoIGRvdCBkb3QgZG90LCBkb3QgZG90IGRvdCBkb3QgZGFzaCwgZG90IGRhc2ggZGFzaCBkYXNoIGRhc2gu', 'NzQxLg==']), solvedText: 'Seal III cracks.' } },
     { id: 'semachart10', type: 'poster', x: 1250, y: 130, w: 180, h: 260, label: 'Flag chart', text: 'FLAGS', motif: 'lines', visibleTo: 'B', task: 'Study the flag chart', look: 'Arm signals, lettered.', clue: { title: 'Arm signals', semaKey: true, tiny: true } },
-    { id: 'statues', type: 'statue', x: 1500, y: 690, w: 80, h: 160, pose: 'tada', label: 'Three statues', task: 'Read the statues', look: 'Three stone figures holding their arms like signalmen.', clue: { title: 'The statues’ arms', sema: 'KEY' } },
+    { id: 'statues', type: 'statue', x: 1500, y: 690, w: 220, h: 160, sema: 'KEY', label: 'Three statues', task: 'Read the statues', look: 'Three stone figures holding their arms like signalmen.', clue: { title: 'The statues’ arms', sema: 'KEY' } },
     { id: 'seal4', type: 'panel', x: 1460, y: 160, w: 90, h: 110, label: 'Seal IV', kind: 'word', task: 'Break seal IV', look: 'The fourth seal: three letter dials.', lock: { kind: 'word', len: 3, answer: '1tbvgi2', hints: D(['U3RhdHVlcyB3aXRoIHRoZWlyIGFybXMgb3V0LCBhbmQgYSBjaGFydCBvZiBhcm0gc2lnbmFscy4=', 'TG9vayB1cCBlYWNoIHN0YXR1ZeKAmXMgcG9zZSBvbiB0aGUgY2hhcnQu', 'S0VZLg==']), solvedText: 'Seal IV cracks.' } },
     { id: 'bulbs10', type: 'bulbs', x: 1620, y: 90, w: 320, h: 40, n: 8, pattern: '00110101', lit: '#ff6b9d', label: 'Row of bulbs', task: 'Read the row of bulbs', look: 'Eight bulbs: dark, dark, lit, lit, dark, lit, dark, lit.', clue: { title: 'The bulbs', big: '○ ○ ● ● ○ ● ○ ●' } },
     { id: 'binnote10', type: 'note', x: 1660, y: 420, w: 100, h: 60, label: 'Operator’s note', visibleTo: 'B', task: 'Read the operator’s note', look: 'The same biro as the wheel hut.', clue: { title: 'Bulbs', text: 'Lit is 1, dark is 0.\nLeft to right, as a binary number.' } },
@@ -1678,7 +1734,7 @@ else {
   });
 }
 // Debug handle for the browser console and the test harness.
-window.Marvello = { G, ctx, ROOMS, ITEMS, H, enterSolo: () => enterRun(makeSoloStore(), true), openSheet, tryLock, sheetAct, walkTo: (x, y) => { G.target = { x, y }; }, teleport: (x, y) => { G.me.x = x; G.me.y = y; G.target = null; }, vis, ost, tasks, taskCount, taskDone, lvState, partnerHere, partnerUid, startHold, stopHold, loadLevel, commit, applyEffects, prefs };
+window.Marvello = { G, ctx, ROOMS, ITEMS, H, enterSolo: () => enterRun(makeSoloStore(), true), openSheet, tryLock, sheetAct, walkTo: (x, y) => { G.target = { x, y }; }, teleport: (x, y) => { G.me.x = x; G.me.y = y; G.target = null; }, vis, ost, tasks, taskCount, taskDone, lvState, partnerHere, partnerUid, startHold, stopHold, loadLevel, commit, applyEffects, prefs, render };
 })();
 
 </script>
