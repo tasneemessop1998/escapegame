@@ -1,61 +1,79 @@
-# Midnight at Marvello’s
+# Escape Rooms
 
-A two-player escape game for the browser. The gates of Marvello’s Carnival of Wonders locked at midnight with the two of you still inside, and ten attractions stand between you and the way out: a ticket booth, a hall of mirrors, a carousel, a fortune teller’s tent, a ghost train, a candy factory, a puppet theatre, a big wheel, a clock tower and, last, Marvello’s vault. Each room has fifteen or more things to find, read, solve or do, and every one of them is built so that two people have to talk: some clues only one of you can see, some levers need two hands at once, and some things have to be handed from one of you to the other.
+Two escape games for two players, in one page, on the same Firebase project and the same accounts and friends as Fold & Press:
 
-It runs on the same free Firebase project, the same accounts and the same friends list as Fold & Press. Nothing in this file gives a puzzle away.
+- **Midnight at Marvello’s**: the carnival you already know, unchanged. Your progress there is kept.
+- **Hollowmere**: new. A haunted house in Yorkshire, in first person and 3D, on the last night of October. Ten rooms, each with twenty or more things to find, read, open, work out or do, and a story that plays out between you as you go.
 
-## 1. Put it online (ten minutes)
+Nothing in this file gives a puzzle away.
 
-You already have the Firebase project, so this is mostly copying.
+## 1. Put it online
 
-1. On GitHub, make a **new repository** (for example `marvellos`), public, with no README.
-2. Upload these files into it: `index.html`, `manifest.webmanifest`, `icon-192.png`, `icon-512.png`, `database.rules.json`.
-3. Also upload **your real `firebase-config.js`**: copy it from your Fold & Press repository. (The one in this folder is a blank placeholder; the game shows a setup note if it finds that.)
-4. Repository → Settings → Pages → Source: *Deploy from a branch*, branch `main`, folder `/ (root)`. Save. A minute later the game is at `https://<your-username>.github.io/marvellos/`.
-5. In the Firebase console → Realtime Database → Rules: paste the contents of `database.rules.json` and publish. This one file covers **both** games (it has everything Fold & Press needs plus the new `rooms` branch and the `escapes` list), so paste the same file into the Fold & Press repo too when you next update it.
+You already have the Marvello’s repository on GitHub Pages, so this is an update.
 
-Nothing else changes: same email/password accounts, same usernames, same friends, and the authorised domain (`<your-username>.github.io`) already covers the new repo.
+1. Open the repository on GitHub.
+2. Replace `index.html` with the new one.
+3. Upload the whole **`assets`** folder (fifteen `.glb` files: the people and the ghosts). It must sit next to `index.html`, so the site has `index.html` and `assets/pm1.glb` side by side. On GitHub: *Add file → Upload files*, then drag the `assets` folder in.
+4. Replace `manifest.webmanifest`, `icon-192.png` and `icon-512.png` with the new ones (the app icon becomes a keyhole and the name *Escape Rooms*).
+5. Leave **your real `firebase-config.js`** where it is. The one in this folder is a blank placeholder; do not upload it over yours.
+6. `database.rules.json` has not changed. Nothing to do in the Firebase console.
 
-Free-tier headroom is fine: a game in progress is a few kilobytes, and chat is pruned after ten minutes.
+A minute later the site is updated. Everyone gets it the next time they open the page (pull down to refresh if a phone still shows the old one).
 
-## 2. Play
+Progress is not in any of these files. Marvello’s runs, best times and friends live in the database and carry straight over.
 
-Sign in with your Fold & Press account (or create one; the username is shared).
+If you would rather start a fresh repository: upload everything in this folder plus your real `firebase-config.js`, switch on Pages (*Settings → Pages → Deploy from a branch → main → / (root)*), and that is all.
 
-**Lobby.**
-- **Your escapes**: games you are part of, with the room you are in and whether your partner is inside right now. Tap to go back in; everything you have solved stays solved, and either of you can keep going alone.
-- **Start with a friend**: picks a friend from your list and drops the game into both of your lists. You are seat A, they are seat B. Some clues are for one seat only.
-- **Share a code**: a five-letter code (or link) for anyone to join. Two players only.
-- **Look around alone**: a solo wander with everything visible and the two-handed things reduced to one hand. Saved on your phone, never counted in your record.
-- **Progress** tab: the ten rooms (names appear as you reach them), your best time per room, and you and your friends ranked by rooms done and total time.
+## 2. The lobby
 
-**In a room.**
-- Tap the ground to walk. Tap a thing to walk over and use it. A label appears on anything you are standing next to.
-- **Hold your finger on the ground** to drop a marker your partner sees (“look here”).
-- The chat bar at the bottom. Messages appear in the corner and as a speech bubble over the sender’s head.
-- Top left: the room and how many of its things you have done (`7/18`). Tap the list button for what you have done so far; the rest is counted, not named.
-- Top right: the room clock. Hints add to it (below). Your best time per room is kept on your profile.
-- Items you pick up sit on the right. Tap one to read about it or, if your partner is standing next to you, hand it over. Each of you carries your own things.
-- Some things are held rather than pressed: **press and hold** the big button while your partner does their part. A door with two plates wants two people; a lever that keeps something moving wants one person holding while the other goes.
-- One room is dark. A carried light shows what is near whoever holds it; stand next to your partner and they can read by your light.
+Sign in as usual. At the top are the two games: tap **Midnight at Marvello’s** or **Hollowmere** to choose. Everything under it (your escapes, Start with a friend, Share a code, Look around alone, and the Progress tab) follows the game you picked, so you and a friend can be partway through both at once.
 
-**Hints.** Every lock has a hint button: hint 1 nudges (+1:00 on the clock), hint 2 is a real push (+2:00), hint 3 is the answer (+5:00). The clock turns red once a hint has been taken, so you both know.
+- **Start with a friend**: pick a friend, and the escape appears in both of your lists. You are the first player, they are the second. Some clues are for one of you only.
+- **Share a code**: five letters anyone can type to join you.
+- **Look around alone**: every room open to one person; anything meant for two hands needs one. Saved on your phone, never counted in your record.
+- **Settings** (the gear): sound and vibration for both games, your Marvello’s look, and for Hollowmere: **jump scares** (Full or Softer), **music** (Off, Quiet, Normal, Loud), **graphics** (Auto, Low, Medium, High) and **who you are** (six people to choose from). The same Hollowmere settings are in the back menu inside the house.
 
-**Finishing a room.** When the exit opens you both see a card with the time and a line of the story, and the next room loads for whoever taps Continue. The run is shared, so the other person follows when they are ready. After the tenth room, the gate.
+## 3. Playing Hollowmere
 
-## 3. What is in the rooms (without spoilers)
+You are both in the house together and you can see each other: a real person each, with a torch.
 
-Each room has its own look and its own kind of trick: things written to be read in a mirror, symbols that stand for letters, blinking lights, arm signals, numbers hidden in lights, locks that take words, digits, colours, arrows, switches, wires, a dial, a clock or an order, and a few plain riddles. Nothing needs arithmetic beyond counting and a bit of adding up. Every room ends in something you have to do together.
+**Moving and looking.** The pad bottom left walks and turns (push it, or use the arrows). Drag anywhere on the picture to look around, up and down too. On a computer: W A S D or the arrow keys, and E or Space to use what you are looking at.
 
-The answers are not written anywhere in the game’s files in plain text: the page stores a scrambled form of each answer and checks what you type against that, so even reading the source gives nothing away. The only way to see an answer is hint 3, and it costs you five minutes.
+**Things.** The small ring in the middle of the screen is where you are looking. When it sits on something it names it; if you are close enough a **Use** button appears. You can also just tap the thing. Then:
+- read it, take it, open it, try a code or something you are carrying on it, or turn it over in your hands to look closely;
+- some things are played rather than solved: you work them with your own hands, and timing matters;
+- some things need both of you at the same moment.
 
-## 4. How it is built (in case you want to change things)
+**Clues are split.** Some things only one of you can see. Talk. Every clue you read has a **Share** button that puts it in your partner’s journal. The journal (the book button) keeps everything either of you has read. The list button shows what you have done in this room; the rest is counted, not named.
 
-- One file, `index.html`: the page, styles and script, like Fold & Press. The rooms are plain data at the bottom of the script (`ROOMS`), one object per thing in the room: where it is, how it is drawn (`type`), what it says when looked at (`look`, `clue`), what it needs (`requires`, `use`, `lock`, `hold`, `holdAll`, `visibleTo`), and what happens when it is solved (`onSolve`, `onTake`, `onLook` effects such as `reveal:id`, `open:id`, `give:item`). Adding a thing to a room is adding an object to that list; adding a task is giving it a `task:` line.
-- Answers are stored as `H('…')` hashes. To change an answer, change the text inside `H()`; the game hashes what the player types the same way. Hints are plain text, three per lock.
-- Drawing is canvas 2D: a backdrop per room (`pal`, `deco`, `floorDeco`), a library of props (`ART`), and the two jelly people (`drawPersonShape`). Each player picks a look in Settings.
-- Live play: `rooms/<code>` in the Realtime Database holds the run (`seats`, `players` with positions and inventories, `lv/<n>` with each thing’s state, hints and penalties, `chat`, `ping`). Positions are written about eight times a second while you move and smoothed on the other side. Held things carry a timestamp per holder that is refreshed while held, so “at the same time” means within a couple of seconds.
-- Solo play keeps the same structure in `localStorage` (`mm.solo`).
-- Progress goes to `profiles/<uid>/escape` (`done`, and a best `time` per room), readable by friends for the Progress tab.
-- Rules: `rooms/<code>` readable and writable by any signed-in player (friends-grade, like games); `users/<uid>/escapes/<code>` writable by you or a friend (so a friend can start a game that appears in your list).
-- `window.Marvello` in the browser console exposes the live state for debugging (`G`, `ROOMS`, `enterSolo()`, `teleport(x, y)`, `openSheet(obj)`).
+**Things you carry** sit down the right-hand side. Tap one to read about it, look at it closely, or hand it to your partner if they are standing next to you. The **satchel** is carried by both of you, and what goes in it stays with you from room to room.
+
+**Chat.** The bar at the bottom. A message appears over the sender’s head and as a line at the top of the screen; while you are typing, the latest messages show just above the box, so you can read and reply at the same time.
+
+**Story.** Between and during the rooms the story plays out in front of you, with speech over the characters’ heads. These scenes happen for both of you at the same moment and cannot be skipped. Headphones help.
+
+**Hints.** Every lock and every hands-on puzzle has a hint button: the first nudges (+1:00 on the room clock), the second pushes (+2:00), the third gives it away (+5:00).
+
+**Scares.** There are jump scares. If it is too much, Settings → Jump scares → Softer keeps them short and quiet.
+
+**If it feels slow** on an older phone, Settings → Graphics → Low.
+
+**Leaving.** The back button: leave for now (everything you solved stays solved, come back from the lobby), quit this escape, or end it for both of you. Each one asks first.
+
+## 4. What changed in the rest of the page
+
+Marvello’s plays exactly as before. The lobby now has the game picker, and the page is called Escape Rooms.
+
+## 5. Tested
+
+Every Hollowmere room has been played start to finish by two simulated players on the same live game (taking things, handing them over, holding things together, playing every hands-on puzzle the way a person would, wrong answers first), and the two-person parts of the later rooms have been played alone as well. Marvello’s still passes all of its own play-throughs. The rooms were also rendered in a real browser to check how they look.
+
+The answers are not written anywhere in the files in plain text. The page keeps a scrambled form of each answer and checks what you enter against it.
+
+## 6. Credits
+
+- People and ghosts: the Microsoft Rocketbox avatar library (MIT licence), including its animations.
+- A head model made from the Lee Perry-Smith head scan by Infinite-Realities, licensed CC BY 3.0 (changed for this game).
+- 3D: three.js (MIT licence), loaded from jsDelivr.
+- Type: IM Fell English, Special Elite, Caveat, Nunito, Fredoka and Patrick Hand, from Google Fonts.
+- Every sound and all the music is made in the browser as you play. There are no sound files.
