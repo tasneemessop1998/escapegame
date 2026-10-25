@@ -2,6 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
+<meta name="build" content="2026.10.25-0913">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="theme-color" content="#0d0b10">
@@ -418,6 +419,7 @@ body.haunt-mode #screen-lobby h3{color:#c9a24a;font-family:'IM Fell English',Geo
 .hm-stats span{font-size:.78rem;color:#a89f90;text-transform:uppercase;letter-spacing:.12em}
 .hdial small{font-size:.72rem;color:var(--hgold);font-weight:800;letter-spacing:.06em}
 .hdials.words{max-width:330px}.hdials.words .hdial .face{width:92px;font-size:1.02rem;height:44px}.hdials.words .hdial button{width:92px;height:26px}
+
 </style>
 </head>
 <body>
@@ -565,6 +567,7 @@ body.haunt-mode #screen-lobby h3{color:#c9a24a;font-family:'IM Fell English',Geo
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="firebase-config.js"></script>
 <script>
+const BUILD = '2026.10.25-0913';
 (() => {
 'use strict';
 const VERSION = '2.0';
@@ -4037,16 +4040,37 @@ function beamMat(color) {
 /* ---------- sound: all synthesised, through one reverb, placed in the room where it matters ---------- */
 const hsfx = (() => {
   let ac = null, master, music, sfx, amb, verb, comp, noiseBuf = null, started = false, ambNodes = [], musicTimer = 0, eventTimer = 0, tension = 0.2, roomKey = 0;
+  let scareBus = null, scareLim = null, shaper = null, dreadSet = null, iosDone = false;
+  const musicBase = () => 0.55 * (prefs.music == null ? 0.7 : prefs.music);
   const ok = () => !!ac && prefs.sound;
   function init() {
     if (ac) return ac; const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
-    ac = new AC(); comp = ac.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 4; comp.connect(ac.destination);
+    ac = new AC(); build(); return ac;
+  }
+  function build() {
+    comp = ac.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 4; comp.connect(ac.destination);
     master = ac.createGain(); master.gain.value = prefs.sound ? 0.9 : 0; master.connect(comp);
-    music = ac.createGain(); music.gain.value = 0.55 * (prefs.music == null ? 0.7 : prefs.music); sfx = ac.createGain(); sfx.gain.value = 1; amb = ac.createGain(); amb.gain.value = 0.8;
+    music = ac.createGain(); music.gain.value = musicBase(); sfx = ac.createGain(); sfx.gain.value = 1; amb = ac.createGain(); amb.gain.value = 0.8;
     verb = ac.createConvolver(); verb.buffer = impulse(3.2, 2.4); const vg = ac.createGain(); vg.gain.value = 0.55; verb.connect(vg); vg.connect(master);
     [music, sfx, amb].forEach(n => { n.connect(master); });
     noiseBuf = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-    return ac;
+    // the scares have their own way out: as loud as the phone will go without breaking up, and not squeezed
+    // down together with the music and the rain the way everything else is
+    scareLim = ac.createDynamicsCompressor(); scareLim.threshold.value = -7; scareLim.knee.value = 2; scareLim.ratio.value = 20; scareLim.attack.value = 0.001; scareLim.release.value = 0.25; scareLim.connect(ac.destination);
+    scareBus = ac.createGain(); scareBus.gain.value = prefs.sound ? 0.9 : 0; scareBus.connect(scareLim);
+    shaper = ac.createWaveShaper(); shaper.curve = driveCurve(4); shaper.oversample = '2x'; const sg = ac.createGain(); sg.gain.value = 0.55; shaper.connect(sg); sg.connect(scareBus);
+  }
+  function driveCurve(k) { const n = 2048, c = new Float32Array(n); for (let i = 0; i < n; i++) { const x = i / (n - 1) * 2 - 1; c[i] = Math.tanh(k * x) / Math.tanh(k); } return c; }
+  // iPhones play web sound through the ringer channel, so the silent switch mutes the whole house. One silent beat
+  // through an ordinary audio element (and the audio session hint where there is one) moves it to the media channel.
+  function iosUnmute() {
+    if (iosDone) return; iosDone = true;
+    try { if (navigator.audioSession && navigator.audioSession.type !== 'playback') navigator.audioSession.type = 'playback'; } catch (e) { /* older Safari */ }
+    try { if (!(navigator.maxTouchPoints > 0) || !/iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent)) return;
+      const n = 2400, buf = new ArrayBuffer(44 + n), v = new DataView(buf), w = (o, s) => [...s].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+      w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVE'); w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); w(36, 'data'); v.setUint32(40, n, true); for (let i = 0; i < n; i++) v.setUint8(44 + i, 128);
+      const el = document.createElement('audio'); el.setAttribute('playsinline', ''); el.preload = 'auto'; el.src = URL.createObjectURL(new Blob([buf], { type: 'audio/wav' })); const p = el.play(); if (p && p.catch) p.catch(() => { iosDone = false; });
+    } catch (e) { /* not this phone */ }
   }
   function impulse(sec, decay) { const n = Math.floor(ac.sampleRate * sec), b = ac.createBuffer(2, n, ac.sampleRate); for (let c = 0; c < 2; c++) { const d = b.getChannelData(c); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, decay) * (i < ac.sampleRate * 0.012 ? i / (ac.sampleRate * 0.012) : 1); } return b; }
   const T0 = () => ac.currentTime;
@@ -4064,6 +4088,36 @@ const hsfx = (() => {
   function bell(t, f, peak, decay, pos) { [[1, 1], [2.76, 0.5], [5.4, 0.25], [8.93, 0.12], [0.5, 0.3]].forEach(([m, a]) => osc('sine', f * m, t, decay * (m < 1 ? 1.4 : 1 / Math.sqrt(m)), peak * a, { wet: 0.5, pos })); }
   function piano(t, f, peak, dur, dest) { [[1, 1, 'triangle'], [2, 0.35, 'sine'], [3, 0.15, 'sine'], [4.01, 0.07, 'sine']].forEach(([m, a, ty]) => { const o = ac.createOscillator(), g = ac.createGain(); o.type = ty; o.frequency.value = f * m; env(g, t, 0.006, peak * a, dur * (1.2 / m + 0.3)); o.connect(g); g.connect(dest || music); const w = ac.createGain(); w.gain.value = 0.6; g.connect(w); w.connect(verb); o.start(t); o.stop(t + dur * 2); }); }
   const NOTE = n => 440 * Math.pow(2, (n - 69) / 12);
+  /* ---- the scares: their own voices, louder than anything else in the house ---- */
+  function envS(g, t, a, peak, hold, rel) { g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(peak, t + a); g.gain.linearRampToValueAtTime(peak * 0.78, t + a + hold); g.gain.exponentialRampToValueAtTime(0.0001, t + a + hold + Math.max(0.05, rel)); }
+  function sv(node, opt) { let n = node; if (opt.hp) { const f = ac.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = opt.hp; f.Q.value = 0.7; n.connect(f); n = f; } n.connect(opt.drive ? shaper : scareBus); if (opt.wet) { const w = ac.createGain(); w.gain.value = opt.wet; n.connect(w); w.connect(verb); } }
+  function so(type, f, t, dur, peak, opt) {
+    opt = opt || {}; const o = ac.createOscillator(), g = ac.createGain(), a = opt.a || 0.002; o.type = type; o.frequency.setValueAtTime(f, t);
+    if (opt.bend) o.frequency.exponentialRampToValueAtTime(f * opt.bend, t + (opt.bendT || 0.25)); if (opt.to) o.frequency.exponentialRampToValueAtTime(Math.max(20, opt.to), t + dur); if (opt.detune) o.detune.value = opt.detune;
+    const extra = []; if (opt.vib) { const l = ac.createOscillator(), lg = ac.createGain(); l.frequency.value = opt.vib[0]; lg.gain.value = opt.vib[1]; l.connect(lg); lg.connect(o.detune); extra.push(l); }
+    if (opt.hold) envS(g, t, a, peak, opt.hold, dur - opt.hold); else env(g, t, a, peak, dur); o.connect(g); let n = g;
+    if (opt.trem) { const tg = ac.createGain(), l = ac.createOscillator(), d = ac.createGain(); tg.gain.value = 1 - opt.trem[1]; l.frequency.value = opt.trem[0]; d.gain.value = opt.trem[1]; l.connect(d); d.connect(tg.gain); n.connect(tg); n = tg; extra.push(l); }
+    if (opt.lp) { const f2 = ac.createBiquadFilter(); f2.type = 'lowpass'; f2.frequency.setValueAtTime(opt.lp, t); if (opt.lpTo) f2.frequency.exponentialRampToValueAtTime(opt.lpTo, t + dur); f2.Q.value = opt.q || 0.8; n.connect(f2); n = f2; }
+    sv(n, opt); [o, ...extra].forEach(x => { x.start(t); x.stop(t + a + dur + 0.1); }); return o;
+  }
+  function sn(t, dur, type, f, peak, opt) { opt = opt || {}; const s = ac.createBufferSource(); s.buffer = noiseBuf; s.loop = true; const fl = ac.createBiquadFilter(); fl.type = type; fl.frequency.setValueAtTime(f, t); if (opt.to) fl.frequency.exponentialRampToValueAtTime(opt.to, t + dur); fl.Q.value = opt.q || 0.7; const g = ac.createGain(); env(g, t, opt.a || 0.001, peak, dur); s.connect(fl); fl.connect(g); sv(g, opt); s.start(t, Math.random()); s.stop(t + dur + 0.1); return s; }
+  // something like a scream: a raw tone through three vowel-ish resonances, wavering, with breath
+  function scream(t, dur, peak, f0) {
+    const o = ac.createOscillator(), v = ac.createOscillator(), vg = ac.createGain(), sum = ac.createGain(), g = ac.createGain(); o.type = 'sawtooth';
+    o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f0 * 1.6, t + 0.2); o.frequency.exponentialRampToValueAtTime(f0 * 1.05, t + dur);
+    v.frequency.value = 8.5; vg.gain.value = 45; v.connect(vg); vg.connect(o.detune); envS(g, t, 0.012, peak, dur * 0.55, dur * 0.45);
+    [[1000, 6, 1], [2500, 8, 0.7], [3400, 9, 0.45]].forEach(([f, q, a]) => { const bp = ac.createBiquadFilter(), ga = ac.createGain(); bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = q; ga.gain.value = a * 2.5; o.connect(bp); bp.connect(ga); ga.connect(sum); });
+    const br = ac.createBufferSource(), bb = ac.createBiquadFilter(), bg = ac.createGain(); br.buffer = noiseBuf; br.loop = true; bb.type = 'bandpass'; bb.frequency.value = 2200; bb.Q.value = 0.8; bg.gain.value = 0.35; br.connect(bb); bb.connect(bg); bg.connect(sum);
+    sum.connect(g); sv(g, { wet: 0.6 }); [o, v].forEach(x => { x.start(t); x.stop(t + dur + 0.15); }); br.start(t, Math.random()); br.stop(t + dur + 0.15);
+  }
+  // a heartbeat you can hear even on a phone speaker
+  function thud(t, dest) { [[0, 1], [0.24, 0.72]].forEach(([dt, k]) => { const o = ac.createOscillator(), g = ac.createGain(); o.type = 'triangle'; o.frequency.setValueAtTime(120, t + dt); o.frequency.exponentialRampToValueAtTime(58, t + dt + 0.14); env(g, t + dt, 0.004, 0.42 * k, 0.16); o.connect(g); g.connect(dest); o.start(t + dt); o.stop(t + dt + 0.3); }); }
+  // everything else in the house drops away for the scare, and comes back slowly afterwards
+  function hushNow(hold) {
+    const t = T0(); [[music, musicBase()], [amb, 0.8]].forEach(([n, base]) => { const g = n.gain; g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(base * 0.03, t + 0.05); g.setValueAtTime(base * 0.03, t + hold); g.linearRampToValueAtTime(base, t + hold + 3); });
+    cutDread();
+  }
+  function cutDread() { if (!dreadSet) return; const t = T0(), g = dreadSet.g.gain; g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(0.0001, t + 0.04); dreadSet.nodes.forEach(n => { try { n.stop(t + 0.1); } catch (e) { /* already stopped */ } }); dreadSet = null; }
   // ---- the house breathing: drone, wind, rain ----
   function startAmbience(cfg) {
     stopAmbience(); if (!ac) return; cfg = cfg || {}; const t = T0();
@@ -4091,8 +4145,8 @@ const hsfx = (() => {
     if (eventTimer <= 0) { const r = Math.random(), far = [(Math.random() - 0.5) * 16, 1 + Math.random() * 2, (Math.random() - 0.5) * 16]; if (r < 0.3) api.creak(far); else if (r < 0.5) api.thump(far); else if (r < 0.65) api.whisper(far, 0.6); else if (r < 0.8) api.steps(far); else api.musicbox(far, 4); eventTimer = 9 + Math.random() * (22 - tension * 10); }
   }
   const api = {
-    unlock() { const a = init(); if (a && a.state === 'suspended') a.resume(); },
-    setMaster() { if (master) master.gain.value = prefs.sound ? 0.9 : 0; if (music) music.gain.value = 0.55 * (prefs.music == null ? 0.7 : prefs.music); },
+    unlock() { const a = init(); iosUnmute(); if (a && a.state === 'suspended') a.resume(); },
+    setMaster() { if (master) master.gain.value = prefs.sound ? 0.9 : 0; if (music) music.gain.value = musicBase(); if (scareBus) scareBus.gain.value = prefs.sound ? 0.9 : 0; },
     listener(cam) { if (!ac || !cam) return; const L = ac.listener, p = cam.position, f = new T.Vector3(0, 0, -1).applyQuaternion(cam.quaternion), u = new T.Vector3(0, 1, 0).applyQuaternion(cam.quaternion); if (L.positionX) { L.positionX.value = p.x; L.positionY.value = p.y; L.positionZ.value = p.z; L.forwardX.value = f.x; L.forwardY.value = f.y; L.forwardZ.value = f.z; L.upX.value = u.x; L.upY.value = u.y; L.upZ.value = u.z; } else { L.setPosition(p.x, p.y, p.z); L.setOrientation(f.x, f.y, f.z, u.x, u.y, u.z); } },
     startAmbience, stopAmbience, score: tick, setTension(k) { tension = clamp(k, 0, 1); },
     step() { play(t => { const side = Math.random() < 0.5 ? -0.25 : 0.25; noise(t, 0.09, 'lowpass', 420 + Math.random() * 180, 0.16, { pan: side, wet: 0.12 }); osc('sine', 70 + Math.random() * 20, t, 0.08, 0.1, { pan: side, wet: 0.05 }); }); },
@@ -4124,9 +4178,44 @@ const hsfx = (() => {
     box(midi) { play(t => osc('sine', NOTE(midi), t, 0.9, 0.12, { wet: 0.5 })); },
     heartbeat(n) { play(t => { for (let i = 0; i < (n || 4); i++) { osc('sine', 52, t + i * 0.8, 0.12, 0.5, { wet: 0.1 }); osc('sine', 46, t + i * 0.8 + 0.22, 0.14, 0.4, { wet: 0.1 }); } }); },
     static(len) { play(t => noise(t, len || 0.6, 'bandpass', 1800, 0.12, { q: 0.4, wet: 0.05 })); },
-    // the scare: a stab of detuned strings and a scream of noise, falling
-    scare() { play(t => { [0, 1, 6, 11, 13].forEach((n, i) => osc('sawtooth', NOTE(64 + n), t, 1.4, 0.16, { lp: 4000, wet: 0.6, detune: (i - 2) * 12, to: NOTE(52 + n) })); noise(t, 1.2, 'bandpass', 2600, 0.5, { q: 1.2, to: 900, wet: 0.7 }); osc('sine', 40, t, 1.2, 0.6, { wet: 0.2 }); }); },
-    sting() { play(t => { [0, 1, 6].forEach(n => osc('sawtooth', NOTE(57 + n), t, 2.2, 0.08, { lp: 1800, wet: 0.8, a: 0.02 })); }); },
+    // a breath of silence before something happens
+    hush(hold) { if (!ok()) return; try { hushNow(hold || 3); } catch (e) { /* decoration */ } },
+    // the jump scare: everything else cut dead, then a crack and a boom, every wrong note at once, strings dragged
+    // high and hard, and (for the face) something like a scream. kind: 'face' | 'figure' | 'lights'; softer if asked
+    scare(kind) { play(t0 => {
+      const soft = prefs.scares === false, t = t0 + 0.01; kind = kind || 'face'; hushNow(soft ? 2 : 3.2); const k = soft ? 0.45 : kind === 'lights' ? 0.8 : 1;
+      sn(t, soft ? 0.12 : 0.2, 'highpass', 220, 0.9 * k, { wet: 0.4 });
+      sn(t, 0.55, 'bandpass', 1300, 0.55 * k, { to: 280, q: 0.9, wet: 0.6 });
+      sn(t, 0.38, 'bandpass', 520, 1.0 * k, { q: 0.9, drive: true, wet: 0.5 });
+      so('sine', 160, t, 0.8, 0.45 * k, { to: 45, drive: true });
+      so('triangle', 82, t, 1.1, 0.3 * k, { to: 36, drive: true });
+      if (kind === 'lights') { [38, 39, 45].forEach((n, i) => so('sawtooth', NOTE(n), t, 2.6, 0.12, { lp: 900, detune: (i - 1) * 9, drive: true, wet: 0.8 })); return; }
+      [50, 51, 56, 57, 62, 63, 69].forEach((n, i) => so('sawtooth', NOTE(n), t, soft ? 0.8 : 1.6, 0.12 * k, { hold: soft ? 0 : 0.35, detune: ((i % 3) - 1) * 16, lp: 7500, lpTo: 1200, drive: true, wet: 0.7 }));
+      if (soft) return;
+      [88, 89, 94, 95, 100].forEach((n, i) => so('sawtooth', NOTE(n), t + 0.01, 2.0, 0.11, { a: 0.004, hold: 0.9, bend: 1.06, bendT: 0.3, to: NOTE(n) * 0.97, vib: [7 + i * 0.6, 40], trem: [13 + i, 0.3], hp: 1300, wet: 0.7 }));
+      if (kind === 'face') scream(t + 0.03, 1.4, 0.55, 760);
+    }); },
+    // a smaller fright: a ghost seen for a moment
+    sting() { play(t => {
+      [57, 58, 63].forEach((n, i) => so('sawtooth', NOTE(n), t, 2.0, 0.07, { a: 0.01, lp: 3000, lpTo: 900, detune: (i - 1) * 10, wet: 0.8 }));
+      [93, 94].forEach(n => so('sawtooth', NOTE(n), t, 1.3, 0.04, { a: 0.02, vib: [7, 30], trem: [12, 0.3], hp: 1500, wet: 0.7 }));
+      sn(t, 0.45, 'bandpass', 1500, 0.3, { to: 500, wet: 0.6 });
+    }); },
+    // the music that says something is coming: low strings trembling faster, a thin whine climbing, a heart quickening
+    dread(sec) { play(t => {
+      cutDread(); const d = Math.max(1.2, sec || 3), set = { g: ac.createGain(), nodes: [] }, w = ac.createGain(); set.g.connect(sfx); w.gain.value = 0.5; set.g.connect(w); w.connect(verb);
+      [38, 39, 44, 45].forEach((n, i) => { const o = ac.createOscillator(), g = ac.createGain(), lp = ac.createBiquadFilter(), tl = ac.createOscillator(), td = ac.createGain(); o.type = 'sawtooth'; o.frequency.value = NOTE(n + 12); o.detune.value = (i - 1.5) * 7; lp.type = 'lowpass'; lp.frequency.setValueAtTime(500, t); lp.frequency.exponentialRampToValueAtTime(3200, t + d); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.13, t + d); g.gain.exponentialRampToValueAtTime(0.0001, t + d + 1.6); tl.frequency.setValueAtTime(5, t); tl.frequency.linearRampToValueAtTime(15, t + d); td.gain.value = 0.035; tl.connect(td); td.connect(g.gain); o.connect(lp); lp.connect(g); g.connect(set.g); [o, tl].forEach(x => { x.start(t); x.stop(t + d + 1.8); set.nodes.push(x); }); });
+      const wh = ac.createOscillator(), wg = ac.createGain(); wh.type = 'sine'; wh.frequency.setValueAtTime(1400, t); wh.frequency.exponentialRampToValueAtTime(2900, t + d); wg.gain.setValueAtTime(0.0001, t); wg.gain.exponentialRampToValueAtTime(0.06, t + d); wg.gain.exponentialRampToValueAtTime(0.0001, t + d + 1.2); wh.connect(wg); wg.connect(set.g); wh.start(t); wh.stop(t + d + 1.4); set.nodes.push(wh);
+      let at = t + 0.15, gap = 0.95; while (at < t + d - 0.1) { thud(at, set.g); at += gap; gap = Math.max(0.42, gap * 0.85); }
+      dreadSet = set;
+    }); },
+    // for checking by ear without ears: render any of these into a buffer instead of the speakers
+    async _render(name, args, secs, withAmb, at) {
+      const keep = { ac, master, music, sfx, amb, verb, comp, noiseBuf, scareBus, scareLim, shaper, dreadSet, started, ambNodes };
+      const off = new OfflineAudioContext(2, Math.round(44100 * secs), 44100); ac = off; build(); dreadSet = null; ambNodes = [];
+      try { if (withAmb) startAmbience(withAmb); const names = Array.isArray(name) ? name : [name], argl = Array.isArray(name) ? (args || []) : [args || []]; const go = () => names.forEach((nm, i) => { if (nm) api[nm].apply(null, argl[i] || []); }); if (at) off.suspend(at).then(() => { go(); off.resume(); }); else go(); return await off.startRendering(); }
+      finally { ({ ac, master, music, sfx, amb, verb, comp, noiseBuf, scareBus, scareLim, shaper, dreadSet, started, ambNodes } = keep); }
+    },
     lights() { play(t => { noise(t, 0.08, 'highpass', 3000, 0.3, { wet: 0.1 }); osc('sine', 100, t + 0.05, 1.2, 0.03, { wet: 0.1 }); }); },
     gramophone(len) { play(t => { noise(t, len || 3, 'bandpass', 3200, 0.03, { q: 0.6, wet: 0.1 }); for (let i = 0; i < (len || 3) * 8; i++) noise(t + Math.random() * (len || 3), 0.01, 'highpass', 4000, 0.12, { wet: 0.05 }); }); }
   };
@@ -4194,7 +4283,7 @@ function hRefreshHud() {
 }
 function hTaskBox() {
   const tb = $('#h-taskbox'); if (!tb.classList.contains('hidden')) { tb.classList.add('hidden'); return; }
-  const ts = hTasks(), done = ts.filter(hTaskDone), todo = ts.length - done.length, sat = Object.keys(hSatchel());
+  const ts = hTasks(), done = ts.filter(hTaskDone), todo = ts.length - done.length, sat = hSatchelHere() ? Object.keys(hSatchel()) : [];
   tb.innerHTML = `<b>${esc(HG.def.name)}</b> · ${done.length} of ${ts.length}<ul>${done.map(o => `<li class="done">${esc(o.task)}</li>`).join('')}${todo ? `<li class="todo">${todo} more to find or solve</li>` : ''}</ul>${HG.def.goal ? `<p class="sub" style="margin-top:6px">${esc(HG.def.goal)}</p>` : ''}${sat.length ? `<p class="sub">In the satchel: ${sat.map(k => esc((HGIFTS[k] || { name: k }).name)).join(', ')}</p>` : ''}`;
   tb.classList.remove('hidden'); setTimeout(() => tb.classList.add('hidden'), 9000);
 }
@@ -4314,15 +4403,15 @@ function hClueHTML(c) {
   return `<div class="hclue ${cls}">${body}</div>`;
 }
 function hClueOf(key) { const [lv, ...rest] = key.split('_'); const id = rest.join('_'); const def = HROOMS[+lv - 1]; const o = def && def.objects.find(x => x.id === id); return o && o.clue ? Object.assign({ title: o.clue.title || o.label }, { o, lv: +lv }) : null; }
-function hJournalBadge() { const got = hMine().got || {}, seen = +(store_.get('hm.jseen.' + (HG.store ? HG.store.code() : '')) || 0); const n = Object.values(got).filter(g => (g.at || 0) > seen).length; const b = $('#h-jn'); b.textContent = n; b.classList.toggle('hidden', !n); }
+function hJournalBadge() { const got = hMine().got || {}, seen = +(store_.get('hm.jseen.' + (HG.store ? HG.store.code() : '')) || 0); const n = Object.keys(got).filter(k => +k.split('_')[0] === HG.level && (got[k].at || 0) > seen).length; const b = $('#h-jn'); b.textContent = n; b.classList.toggle('hidden', !n); }
 function openJournal(tab) {
   const box = $('#h-journalbox'), mine = hMine(), notes = Object.keys(mine.notes || {}), got = mine.got || {};
   store_.set('hm.jseen.' + (HG.store ? HG.store.code() : ''), String(Date.now())); hJournalBadge();
-  const keys = [...new Set(notes.concat(Object.keys(got)))].filter(k => hClueOf(k)).sort((a, b) => { const [la] = a.split('_'), [lb] = b.split('_'); return (+lb - +la) || 0; });
-  const sat = Object.keys(hSatchel());
+  const keys = [...new Set(notes.concat(Object.keys(got)))].filter(k => hClueOf(k) && +k.split('_')[0] === HG.level);
+  const sat = hSatchelHere() ? Object.keys(hSatchel()) : [];
   box.innerHTML = `<div class="jhead"><h2>Journal</h2><button type="button" class="hb" id="h-jclose">${I.back}</button></div>
     ${sat.length ? `<div class="jlist" style="margin-bottom:12px"><div class="jitem" style="border-color:rgba(201,162,74,.5)"><span>${HI.satchel}</span><div><b>The satchel</b><small>${sat.map(k => esc((HGIFTS[k] || { name: k }).name)).join(' · ')}</small></div></div></div>` : ''}
-    <div class="jlist">${keys.length ? keys.map(k => { const c = hClueOf(k), from = got[k]; return `<button type="button" class="jitem" data-k="${esc(k)}"><span>${HI.page}</span><div><b>${esc(c.title)}</b><small>${esc((HROOMS[c.lv - 1] || {}).name || '')}</small></div>${from ? `<span class="tag">from ${esc(from.from)}</span>` : ''}</button>`; }).join('') : '<p class="sub" style="text-align:center">Nothing yet. Anything you read goes in here, and anything your partner shares.</p>'}</div>`;
+    <div class="jlist">${keys.length ? keys.map(k => { const c = hClueOf(k), from = got[k]; return `<button type="button" class="jitem" data-k="${esc(k)}"><span>${HI.page}</span><div><b>${esc(c.title)}</b><small>${esc((HROOMS[c.lv - 1] || {}).name || '')}</small></div>${from ? `<span class="tag">from ${esc(from.from)}</span>` : ''}</button>`; }).join('') : '<p class="sub" style="text-align:center">Nothing yet in this room. Anything you read here goes in, and anything your partner shares.</p>'}</div>`;
   box.classList.remove('hidden');
   $('#h-jclose').onclick = () => box.classList.add('hidden');
   box.querySelectorAll('[data-k]').forEach(b => b.onclick = () => hOpenClue(b.dataset.k));
@@ -4392,8 +4481,12 @@ async function hTryLock(o, value) {
 
 /* ---- things you carry ---- */
 let hInvKey = '';
+// the tools a room needs (lock picks, the violet lens); the satchel's gifts are only wanted in the room that says so
+const hKitNeedCache = new Map();
+function hKitNeed(def) { if (!def) return new Set(); if (hKitNeedCache.has(def)) return hKitNeedCache.get(def); const need = new Set(); (def.objects || []).forEach(o => { if (o.needs) [].concat(o.needs).forEach(k => need.add(k)); if (o.uv) need.add('lens'); }); hKitNeedCache.set(def, need); return need; }
+const hSatchelHere = () => !!(HG.def && HG.def.satchel);
 function hRenderInv() {
-  const inv = hInv().filter(id => HITEMS[id] && (!HITEMS[id].room || HITEMS[id].room === HG.level)), kit = hKit(), sat = Object.keys(hSatchel());
+  const need = hKitNeed(HG.def), inv = hInv().filter(id => HITEMS[id] && (!HITEMS[id].room || HITEMS[id].room === HG.level)), kit = hKit().filter(id => need.has(id)), sat = hSatchelHere() ? Object.keys(hSatchel()) : [];
   const key = inv.join() + '|' + kit.join() + '|' + sat.length; if (key === hInvKey) return; const before = hInvKey; hInvKey = key;
   $('#h-inv').innerHTML = (sat.length ? `<button type="button" class="gift" data-item="satchel" data-kind="satchel" title="The satchel">${HI.satchel}</button>` : '') + kit.map(id => `<button type="button" class="kit" data-item="${id}" data-kind="kit" title="${esc(hItemName(id))}">${hIcon((HITEMS[id] || {}).icon)}</button>`).join('') + inv.map(id => `<button type="button" data-item="${id}" data-kind="inv" class="${before.includes(id) ? '' : 'new'}" title="${esc(hItemName(id))}">${hIcon((HITEMS[id] || {}).icon)}</button>`).join('');
 }
@@ -5090,19 +5183,22 @@ function hFx(kind, s) {
 /* ---- jump scares ---- */
 let hollowFace = null;
 async function hScare(kind, at) {
-  if (HG.scaring) return; HG.scaring = true; const soft = prefs.scares === false;
+  if (HG.scaring) return; HG.scaring = true; const soft = prefs.scares === false; kind = kind || 'face';
   $('#h-card').classList.add('hidden'); if (HG.cine) HG.cine.cardUntil = null;
-  hsfx.scare(); buzz([60, 30, 120]);
+  // the house goes dead quiet for a breath (and the face is made ready), then it hits: sound, shake and sight together
+  hsfx.hush(3.5);
+  const ready = kind === 'face' && !soft && !hollowFace ? loadGLB('hollow').then(gl => { hollowFace = gl.scene; hollowFace.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color = new T.Color(0xc8d4e8); m.material.fog = false; m.frustumCulled = false; } }); }).catch(() => { hollowFace = null; }) : null;
+  await Promise.all([new Promise(r => setTimeout(r, 170)), ready]);
+  hsfx.scare(kind); buzz([60, 30, 120]);
   if (kind === 'figure' || soft) { HG.flicker = 1.2; const gh = await hGhost('hollow'); const fwd = new T.Vector3(-Math.sin(HG.me.yaw), 0, -Math.cos(HG.me.yaw)); if (at) { gh.g.position.set(at[0], 0, at[1]); gh.g.rotation.y = Math.atan2(HG.me.x - at[0], HG.me.z - at[1]); } else { gh.g.position.set(HG.me.x + fwd.x * 3.2, 0, HG.me.z + fwd.z * 3.2); gh.g.rotation.y = HG.me.yaw; } gh.fade = 'in'; gh.op = 1; setTimeout(() => { gh.fade = 'out'; gh.op = 0; }, soft ? 250 : 700); setTimeout(() => { HG.scaring = false; }, 1500); return; }
   if (kind === 'lights') { HG.blackout = true; hsfx.whisper(null, 1.4); setTimeout(() => { HG.blackout = false; HG.scaring = false; }, 2200); return; }
   // the face, out of nowhere, right at you
-  try { if (!hollowFace) { const gl = await loadGLB('hollow'); hollowFace = gl.scene; hollowFace.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color = new T.Color(0xc8d4e8); m.material.fog = false; m.frustumCulled = false; } }); } } catch (e) { hollowFace = null; }
   const el = $('#h-scare'), own = !HG.cine; if (own) HG.cine = { id: 'scare', steps: [], i: 0, wait: 99, bubbles: [], cam: null, made: [], hidePartner: false, noTorch: false };
   const end = () => { if (own && HG.cine && HG.cine.id === 'scare') HG.cine = null; HG.scaring = false; };
   if (!hollowFace || !HG.renderer) { el.classList.remove('hidden'); el.classList.add('red'); HG.shake = 1.5; setTimeout(() => { el.classList.add('hidden'); el.classList.remove('red'); end(); }, 900); return; }
   const f = hollowFace, lamp = new T.PointLight(0xdde6ff, 3, 2.5, 2); HG.camera.add(f); HG.camera.add(lamp); lamp.position.set(0, -0.2, -0.3); f.scale.setScalar(0.11);
-  let t = 0; HG.shake = 2; const dur = 0.9;
-  const step = () => { t += 1 / 60; const k = Math.min(1, t / 0.18); f.position.set(Math.sin(t * 40) * 0.01, -0.06, -1.6 + k * 1.32); f.rotation.set(0.1, Math.sin(t * 30) * 0.05, 0); if (t < dur) requestAnimationFrame(step); else { HG.camera.remove(f); HG.camera.remove(lamp); el.classList.remove('hidden'); el.style.opacity = '1'; setTimeout(() => { el.classList.add('hidden'); end(); }, 450); } };
+  let t = 0, last = performance.now(); HG.shake = 2; const dur = 0.9;
+  const step = () => { const now = performance.now(); t += Math.min(0.05, (now - last) / 1000); last = now; const k = Math.min(1, t / 0.18); f.position.set(Math.sin(t * 40) * 0.01, -0.06, -1.6 + k * 1.32); f.rotation.set(0.1, Math.sin(t * 30) * 0.05, 0); if (t < dur) requestAnimationFrame(step); else { HG.camera.remove(f); HG.camera.remove(lamp); el.classList.remove('hidden'); el.style.opacity = '1'; setTimeout(() => { el.classList.add('hidden'); end(); }, 450); } };
   requestAnimationFrame(step);
 }
 
@@ -5246,8 +5342,14 @@ async function hLoadLevel(n) {
   if (HG.renderer) { hLoading(true, 0.9, 'Lighting the candles…'); await new Promise(r => setTimeout(r, 20)); const hid = []; HG.scene.traverse(o => { if (o.isObject3D && !o.visible && o !== HG.scene) { hid.push(o); o.visible = true; } }); try { HG.renderer.compile(HG.scene, HG.camera); } catch (e) { /* compiles on first sight instead */ } hid.forEach(o => { o.visible = false; }); }
   hLoading(true, 1); await new Promise(r => setTimeout(r, 250)); hLoading(false); HG.ready = true;
   hsfx.unlock(); hsfx.startAmbience(Object.assign({ key: (n * 5) % 12 - 6, tension: 0.2 + n * 0.06 }, def.sound || {}));
-  hRefreshHud(); hRenderInv(); hKitFallback(n, def);
+  hPurgeCarried(n); hRefreshHud(); hRenderInv(); hKitFallback(n, def);
   if (def.scenes && def.scenes.intro && !hSeen('intro')) hPlayScene('intro'); else hannounce(def.name, '', 2200);
+}
+function hPurgeCarried(n) {
+  if (!HG.store) return; const upd = {}, me = HG.meUid;
+  hInv().forEach(id => { const it = HITEMS[id]; if (it && it.room && it.room !== n) upd[`players/${me}/inv/${id}`] = null; });
+  hKit().forEach(id => { if (!HROOMS.slice(n - 1).some(d => hKitNeed(d).has(id))) upd[`players/${me}/kit/${id}`] = null; });
+  if (Object.keys(upd).length) HG.store.update(upd).catch(() => {});
 }
 // A room that needs something found in an earlier room (the lock picks, the violet lens) must never be stuck because
 // whoever found it has gone: if nobody in this run has it, it turns up in your pocket.
@@ -5846,9 +5948,9 @@ HROOMS.push({
       { cam: null, dur: 0.2 }
     ],
     cabinet: [
-      { cam: [2.4, 1.6, -1.6], look: [3.4, 1.25, -4.0], dur: 1.2 },
+      { cam: [2.4, 1.6, -1.6], look: [3.4, 1.25, -4.0], sfx: 'dread', args: [2.1], dur: 1.2 },
       { ghost: 'hollow', at: [3.4, -3.95], yaw: 0, anim: 'idle', dur: 0.9 },
-      { fx: 'flash', sfx: 'scare', ghost: 'hollow', fade: 'out', run: () => { HG.shake = 1.8; buzz([60, 30, 120]); }, dur: 1.0 },
+      { fx: 'flash', sfx: 'scare', args: ['figure'], ghost: 'hollow', fade: 'out', run: () => { HG.shake = 1.8; buzz([60, 30, 120]); }, dur: 1.0 },
       { card: D(['Tm90aGluZyBpbnNpZGUgYnV0IGEgc2hlbGYsIGFuZCBvbiBpdCBhIHNtYWxsIHZlbHZldCBib3gu'])[0], dur: 2.8 },
       { cam: null, dur: 0.2 }
     ],
@@ -6249,7 +6351,7 @@ HROOMS.push({
     ],
     under: [
       { cam: [3.35, 0.32, -2.15], look: [3.3, 0.18, -3.6], dur: 1.6 },
-      { card: D(['RHVzdC4gQSB3b29kZW4gYm94LCBwdXNoZWQgcmlnaHQgdG8gdGhlIGJhY2su'])[0], dur: 2.2 },
+      { card: D(['RHVzdC4gQSB3b29kZW4gYm94LCBwdXNoZWQgcmlnaHQgdG8gdGhlIGJhY2su'])[0], sfx: 'dread', args: [3.2], dur: 2.2 },
       { card: D(['QW5kIGJlaGluZCB0aGUgYm94LCB0d28gZXllcy4='])[0], dur: 1.0, run: () => hScare('face') },
       { wait: 1.6 },
       { cam: null, dur: 0.2, run: () => { if (!host('secretbox').revealed) hcommit({ [`lv/${HG.level}/obj/secretbox/revealed`]: true }); } }
@@ -6506,7 +6608,7 @@ HROOMS.push({
       { cam: null, dur: 0.2 }
     ],
     bed: [
-      { cam: [0.6, 1.6, -0.6], look: [0.5, 0.9, -3.4], dur: 1.2 },
+      { cam: [0.6, 1.6, -0.6], look: [0.5, 0.9, -3.4], sfx: 'dread', args: [2.6], dur: 1.2 },
       { card: D(['VW5kZXIgdGhlIGNvdmVycywgc29tZXRoaW5nIHNpdHMgdXAu'])[0], dur: 1.2, ghost: 'hollow', at: [0.5, -3.3, 0.2], yaw: 0, anim: 'sit' },
       { run: () => hScare('face'), wait: 1.4 },
       { ghost: 'hollow', fade: 'out', card: D(['Tm90aGluZy4gT25seSBhIGRlbnQgaW4gdGhlIHBpbGxvdywgYW5kIHVuZGVyIGl0LCBhIHBhZ2Uu'])[0], dur: 2.6, run: () => { if (!host('page1').revealed) hcommit({ [`lv/${HG.level}/obj/page1/revealed`]: true }); } },
@@ -6749,7 +6851,7 @@ HROOMS.push({
     photo: [
       { cam: [6.15, 1.62, 2.75], look: [6.55, 1.66, 2.48], dur: 1.0 },
       { card: D(['T3V0IG9mIHRoZSB3aGl0ZSwgdGhlIHBpY3R1cmUgc3dpbXMgdXA6IHRoZSBtZXJlIGZyb20gdGhpcyB2ZXJ5IHdpbmRvdywgZnJvemVuLiBUd28gc21hbGwgZmlndXJlcyBvbiB0aGUgaWNlIGJ5IHRoZSBqZXR0eS4='])[0], dur: 4.0 },
-      { card: D(['T25lIG9mIHRoZW0gaXMgbHlpbmcgZmxhdCwgcmVhY2hpbmcgZm9yIHRoZSBvdGhlci4='])[0], dur: 2.6 },
+      { card: D(['T25lIG9mIHRoZW0gaXMgbHlpbmcgZmxhdCwgcmVhY2hpbmcgZm9yIHRoZSBvdGhlci4='])[0], sfx: 'dread', args: [2.8], dur: 2.6 },
       { run: () => hScare('face'), wait: 1.6 },
       { cam: null, dur: 0.2 }
     ],
@@ -6997,7 +7099,7 @@ const r10Stone = (id, num) => ({ id, kind: 'circleStone', at: R10STONES[id], lab
 const r10Mark = (id, num) => ({ id: 'uv_' + id, kind: 'decal', at: [R10STONES[id][0], 0.345, R10STONES[id][1]], floor: true, uv: true, w: 0.26, h: 0.18, text: num, label: 'A mark on the stone', look: D(['SW4gdGhlIHZpb2xldCBsaWdodCwgYSBudW1lcmFsIGdsb3dzIG9uIHRvcCBvZiB0aGUgc3RvbmUsIGluIE1ycyBDcmFuZeKAmXMgaW5rLg=='])[0], showIf: () => r10Drained(), clue: { style: 'dark', text: num } });
 
 HROOMS.push({
-  name: 'The Cellar Chapel', w: 9, d: 12, h: 4.4,
+  name: 'The Cellar Chapel', w: 9, d: 12, h: 4.4, satchel: true,
   floorMat: 'stone', stone: '#4c4a46', wall: { stone: '#4e4a44' }, wain: false, trim: 'oak', ceilingMat: 'stone',
   fog: 0.07, ambient: [0x3a4258, 0x14100c, 0.7], sound: { rain: 0.0, wind: 0.04, drone: 0.08, root: 33 },
   start: { A: [-0.6, 4.6, 0], B: [0.6, 4.6, 0] },
@@ -7081,7 +7183,7 @@ HROOMS.push({
       { say: 'crane', text: D(['QW5kIHRoZSBicm90aGVy4oCZcyB0cnV0aC4gU3BlYWssIFRob21hcy4gVGhlIHRydWVzdCB0aGluZyB5b3UgaGF2ZS4='])[0] },
       { say: 'thomas', text: D(['SS4uLiBJIGJyb2tlIE1hbWHigJlzIGJsdWUgdmFzZS4gQXQgQ2hyaXN0bWFzLiBBbmQgSSBsZXQgQWduZXMgYmUgYmxhbWVkLg=='])[0], anim: 'nervous' },
       { say: 'crane', text: D(['VGhhdCBpcyBub3QgdGhlIHRydXRoLCBib3ku'])[0], anim: 'angry' },
-      { sfx: 'whisper', args: [[0, 0.6, -0.6], 2.0], card: D(['RXZlcnkgY2FuZGxlIGd1dHRlcnMgYXQgb25jZS4gSW4gdGhlIG1pZGRsZSBvZiB0aGUgY2lyY2xlLCB0aGUgYmxhY2sgd2F0ZXIgYmVnaW5zIHRvIG1vdmUu'])[0], dur: 3.4 },
+      { sfx: 'whisper', args: [[0, 0.6, -0.6], 2.0], run: () => hsfx.dread(4.4), card: D(['RXZlcnkgY2FuZGxlIGd1dHRlcnMgYXQgb25jZS4gSW4gdGhlIG1pZGRsZSBvZiB0aGUgY2lyY2xlLCB0aGUgYmxhY2sgd2F0ZXIgYmVnaW5zIHRvIG1vdmUu'])[0], dur: 3.4 },
       { ghost: 'hollow', at: [0, -0.6], yaw: 0, anim: 'idle', dur: 0.8 },
       { run: () => hScare('face'), wait: 1.6 },
       { ghost: 'hollow', fade: 'out', dur: 0.1 }, { ghost: 'crane', fade: 'out', dur: 0.1 }, { ghost: 'ambrose', fade: 'out', dur: 0.1 }, { ghost: 'evelyn', fade: 'out', dur: 0.1 }, { ghost: 'thomas', fade: 'out', dur: 0.1 }, { ghost: 'agnes', fade: 'out', dur: 1.0 },
@@ -7182,7 +7284,7 @@ else {
 }
 // Debug handle for the browser console and the test harness.
 window.Marvello = { G, ctx, ROOMS, ITEMS, H, enterSolo: () => enterRun(makeSoloStore(), true), openSheet, tryLock, sheetAct, walkTo: (x, y) => { G.target = { x, y }; }, teleport: (x, y) => { G.me.x = x; G.me.y = y; G.target = null; }, vis, ost, tasks, taskCount, taskDone, lvState, partnerHere, partnerUid, startHold, stopHold, loadLevel, commit, applyEffects, prefs, render };
-window.Haunt = { HG, HROOMS, HITEMS, HGIFTS, MINI, H, prefs, ctx, enterSolo: () => hEnter(makeHauntSolo(), true), openThing, hSheetAct, hTryLock, hRefreshSheet, closeSheet3, hvis, host, hDone, hlvState, hTaskCount, hTaskDone, hTasks, hcommit, happly, hStartHold, hStopHold, hCheckSync, hPlayScene, hSeen, hScare, hLoadLevel, openInspect, closeInspect, hItemMenu, openJournal, hInv, hKit, hSatchel, hUnlocked, setFocus, tapAt, hSendChat, hLeave, hPartnerUid, hPlayers, updatePlayer, moveWithCollisions, blocked, torchColor, hSync3D, hScenesCheck, hClimb, hClimbDown, hRenderInv, inReach, hHeldFresh, hNow };
+window.Haunt = { HG, hsfx, HROOMS, HITEMS, HGIFTS, MINI, H, prefs, ctx, enterSolo: () => hEnter(makeHauntSolo(), true), openThing, hSheetAct, hTryLock, hRefreshSheet, closeSheet3, hvis, host, hDone, hlvState, hTaskCount, hTaskDone, hTasks, hcommit, happly, hStartHold, hStopHold, hCheckSync, hPlayScene, hSeen, hScare, hLoadLevel, openInspect, closeInspect, hItemMenu, openJournal, hInv, hKit, hSatchel, hUnlocked, setFocus, tapAt, hSendChat, hLeave, hPartnerUid, hPlayers, updatePlayer, moveWithCollisions, blocked, torchColor, hSync3D, hScenesCheck, hClimb, hClimbDown, hRenderInv, inReach, hHeldFresh, hNow };
 })();
 
 </script>
