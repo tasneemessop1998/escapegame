@@ -258,14 +258,15 @@ body.haunt-mode #screen-lobby h3{color:#c9a24a;font-family:'IM Fell English',Geo
 #screen-haunt.cine .h-lb i{height:12vh}
 #screen-haunt.cine .h-hud,#screen-haunt.cine .h-top,#screen-haunt.cine .h-inv,#screen-haunt.cine .h-cross,#screen-haunt.cine .h-label,#screen-haunt.cine .h-pad,#screen-haunt.cine .h-acts,#screen-haunt.cine .h-chatbar{opacity:0;pointer-events:none}
 #h-bubbles{position:absolute;inset:0;pointer-events:none;z-index:7}
-.h-bub{position:absolute;transform:translate(-50%,-100%);max-width:min(300px,70vw);background:rgba(244,238,226,.94);color:#1d1712;border-radius:14px;padding:8px 12px 9px;font-size:.95rem;line-height:1.3;box-shadow:0 6px 20px rgba(0,0,0,.45);animation:hbub .35s ease-out both;font-family:Nunito,sans-serif}
+.h-bub{position:absolute;left:0;top:0;max-width:min(300px,calc(100vw - 28px));background:rgba(244,238,226,.94);color:#1d1712;border-radius:14px;padding:8px 12px 9px;font-size:.95rem;line-height:1.3;box-shadow:0 6px 20px rgba(0,0,0,.45);animation:hbub .35s ease-out both;font-family:Nunito,sans-serif}
 .h-bub b{display:block;font-family:'IM Fell English',Georgia,serif;font-weight:400;font-size:.95rem;color:#6a4a1a;margin-bottom:1px}
-.h-bub:after{content:'';position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);border:8px solid transparent;border-top-color:rgba(244,238,226,.94);border-bottom:0}
+.h-bub:after{content:'';position:absolute;left:var(--tx,50%);bottom:-8px;transform:translateX(-50%);border:8px solid transparent;border-top-color:rgba(244,238,226,.94);border-bottom:0}
 .h-bub.ghost{background:rgba(205,220,250,.9);color:#101826}.h-bub.ghost:after{border-top-color:rgba(205,220,250,.9)}
-.h-bub.edge{transform:translate(-50%,0)}.h-bub.edge:after{display:none}
-@keyframes hbub{from{opacity:0;transform:translate(-50%,-90%)}}
-.h-card{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:8;max-width:min(560px,86vw);text-align:center;font-family:'IM Fell English',Georgia,serif;font-size:1.35rem;line-height:1.45;color:#efe6d2;text-shadow:0 2px 12px #000;pointer-events:none;animation:hcard 1.2s ease both}
-.h-card small{display:block;font-family:Nunito,sans-serif;font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;color:var(--hgold);margin-bottom:10px}
+.h-bub.edge:after{display:none}.h-bub.below:after{bottom:auto;top:-8px;border-top:0;border-bottom:8px solid rgba(244,238,226,.94)}.h-bub.ghost.below:after{border-bottom-color:rgba(205,220,250,.9)}
+@keyframes hbub{from{opacity:0;transform:translateY(8px)}}
+.h-card{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:31;width:min(560px,92vw);box-sizing:border-box;text-align:center;font-family:'IM Fell English',Georgia,serif;font-size:1.35rem;line-height:1.45;color:#efe6d2;text-shadow:0 2px 12px #000;pointer-events:none;animation:hcard .6s ease both;padding:22px 30px;border-radius:40px;background:radial-gradient(farthest-side,rgba(0,0,0,.8),rgba(0,0,0,.62) 66%,rgba(0,0,0,0))}
+.h-card.big{font-size:2.1rem;letter-spacing:.14em}
+.h-card small{display:block;font-family:Nunito,sans-serif;font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;color:var(--hgold);margin-bottom:10px;text-shadow:0 0 3px #000,0 1px 8px #000}
 @keyframes hcard{from{opacity:0;filter:blur(6px)}}
 .h-hud{position:absolute;left:0;right:0;top:0;z-index:5;display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-inset-top,0px)) 10px 6px;transition:opacity .4s;pointer-events:none}
 .h-hud>*{pointer-events:auto}
@@ -328,18 +329,22 @@ body.haunt-mode #screen-lobby h3{color:#c9a24a;font-family:'IM Fell English',Geo
 .h-sheet .acts button.sec,.h-btn.sec{background:rgba(255,255,255,.08);color:#e8e2d6;box-shadow:none;border:1px solid var(--hline)}
 .h-sheet .acts button.share{background:rgba(120,140,200,.18);color:#d8e0ff;box-shadow:none;border:1px solid rgba(160,180,240,.35)}
 .h-sheet .fb{min-height:1.3em;font-weight:800;margin-top:6px}.h-sheet .fb.ok{color:#9ad09a}.h-sheet .fb.no{color:#e07a6a}
+.h-sheet .holdst{margin:2px 0 0;min-height:1.2em;color:#d8c9a4;font-size:.95rem;line-height:1.4}
+.h-sheet .acts button.holdbtn{flex:1 1 100%;-webkit-touch-callout:none;background:linear-gradient(180deg,#e9d39a,#b8913e)}
+.h-sheet .acts button.holdbtn.on{background:linear-gradient(180deg,#a9e0b0,#5fae70);color:#0b2410;box-shadow:0 1px 0 #2c5a34;transform:translateY(2px);animation:holdPulse 1s ease-in-out infinite}
+@keyframes holdPulse{50%{filter:brightness(1.15)}}
 .h-sheet .hintrow{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
 .h-sheet .hinttext{background:rgba(201,162,74,.1);border:1px dashed rgba(201,162,74,.5);border-radius:12px;padding:8px 10px;font-size:.9rem;margin-top:6px}
 .h-sheet .sub{color:#a89f90;font-size:.84rem}
 /* clues: paper, typed, handwritten, card */
-.hclue{background:var(--hpaper);color:var(--hink);border-radius:4px;padding:14px 16px;margin:8px 0;box-shadow:0 6px 18px rgba(0,0,0,.5),inset 0 0 60px rgba(150,110,50,.25);font-family:'IM Fell English',Georgia,serif;font-size:1.08rem;line-height:1.5;position:relative;white-space:pre-line}
+.hclue{display:block;z-index:auto;background:var(--hpaper);color:var(--hink);border-radius:4px;padding:14px 16px;margin:8px 0;box-shadow:0 6px 18px rgba(0,0,0,.5),inset 0 0 60px rgba(150,110,50,.25);font-family:'IM Fell English',Georgia,serif;font-size:1.08rem;line-height:1.5;position:relative;white-space:pre-line}
 .hclue.hand{font-family:Caveat,cursive;font-size:1.45rem;line-height:1.25;color:#1e1a30}
 .hclue.type{font-family:'Special Elite',monospace;font-size:.98rem;line-height:1.45;background:#ece4d0}
 .hclue.card{background:#f3eee2;border:1px solid #c8b890;text-align:center}
 .hclue.child{font-family:Caveat,cursive;font-size:1.55rem;color:#2a3a7a;background:#f1ead8}
 .hclue.dark{background:#1c1a22;color:#d8d0e8;box-shadow:inset 0 0 40px rgba(120,80,200,.25)}
 .hclue.chalk{background:#24221f;color:#ece8de;font-family:'Special Elite',monospace;font-size:1.02rem;letter-spacing:.04em;box-shadow:0 6px 18px rgba(0,0,0,.5),inset 0 0 50px rgba(0,0,0,.6)}
-.hclue.chalk h4{color:#b8b0a0}
+.hclue.chalk h4{color:#b8b0a0}.hclue.dark h4{color:#b9a8e2}.hclue.burnt h4{color:#4a2c0c}
 .hclue table{border-collapse:collapse;margin:4px auto}.hclue td{padding:1px 10px;font-size:1.05rem}
 .hclue.burnt{background:linear-gradient(180deg,#d9c9a6,#b89c6a 70%,#5a3a1a);color:#2a1a0a}
 .hclue h4{font-family:'IM Fell English',Georgia,serif;font-weight:400;margin:0 0 6px;font-size:1.05rem;letter-spacing:.06em;text-transform:uppercase;color:#7a5a2a}
@@ -390,6 +395,7 @@ body.haunt-mode #screen-lobby h3{color:#c9a24a;font-family:'IM Fell English',Geo
 .h-load-line{height:2px;background:rgba(255,255,255,.12);overflow:hidden}.h-load-line i{display:block;height:100%;width:3%;background:#c9a24a;transition:width .4s}
 .h-load-txt{margin-top:16px;color:#a89f90;font-family:'IM Fell English',Georgia,serif;font-style:italic;font-size:1.05rem;min-height:2.6em}
 .h-toast{position:absolute;left:50%;top:38%;transform:translateX(-50%);z-index:9;max-width:min(520px,86vw);text-align:center;background:rgba(14,12,16,.86);border:1px solid var(--hline);border-radius:14px;padding:9px 14px;font-size:.95rem;pointer-events:none;animation:hcard .5s ease both}
+.h-toast.share{top:calc(96px + env(safe-area-inset-top,0px));width:min(440px,calc(100vw - 32px));pointer-events:auto;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;padding:8px 8px 8px 14px}.h-toast.share button{flex:0 0 auto;padding:7px 12px;font-size:.9rem;border-radius:10px;background:linear-gradient(180deg,#e9d39a,#c9a24a);color:#2a1e0a;box-shadow:0 2px 0 #7a5a1a;font-family:Nunito,sans-serif}
 .h-announce{position:absolute;left:5%;right:5%;top:22%;text-align:center;z-index:9;pointer-events:none;font-family:'IM Fell English',Georgia,serif;font-size:2.1rem;color:#efe6d2;text-shadow:0 3px 18px #000;animation:waIn .6s ease both,waOut .8s ease-in forwards var(--hold,1.8s)}
 .h-announce.good{color:#e9d39a}.h-announce.bad{color:#e07a6a}
 @media (orientation:landscape) and (max-height:500px){.h-pad{width:112px;height:112px;bottom:calc(56px + env(safe-area-inset-bottom,0px))}.h-acts{bottom:calc(56px + env(safe-area-inset-bottom,0px))}.h-top{max-width:280px}}
@@ -401,6 +407,8 @@ body.haunt-mode #screen-lobby h3{color:#c9a24a;font-family:'IM Fell English',Geo
 .overlay.hm .box p,.overlay.hm .box .hint,.overlay.hm .box .sub{color:#cfc5b4}
 .overlay.hm .btns button.primary,.overlay.hm .btns button:not(.secondary):not(.danger){background:linear-gradient(180deg,#e9d39a,#c9a24a);color:#2a1e0a;box-shadow:0 3px 0 #7a5a1a}
 .overlay.hm .btns button.secondary{background:rgba(255,255,255,.07);color:#e8e2d6;box-shadow:none;border:1px solid rgba(232,226,214,.16)}
+.overlay.hm{--hpaper:#e9dfc8;--hink:#2a2016;--hgold:#c9a24a;--hline:rgba(232,226,214,.16)}
+.overlay.hm .box .hclue p,.overlay.hm .box .hclue .sub{color:inherit}
 .overlay.hm .list .item{background:rgba(255,255,255,.04);border-color:rgba(232,226,214,.12)}
 .hm-h{text-align:center;font-size:1.7rem;margin:4px 0 10px}
 .hm-story{font-family:'IM Fell English',Georgia,serif;font-size:1.12rem;line-height:1.55;color:#e6dccb;text-align:center;margin:0 0 14px;white-space:pre-line}
@@ -3623,6 +3631,48 @@ PROPS.tablet = o => {
   const S = stoneMat('#a8a090'); return { g: group(mesh(BX(w, h, 0.05), [S, S, S, S, new T.MeshStandardMaterial({ map: t, roughness: 0.9 }), S], 0, 0, 0.025)), col: [], anchor: [0, -0.5, 0.6], wall: true };
 };
 
+/* ---------- things the house only described before: now they can be seen ---------- */
+// a beaded evening bag hanging by its cord from the top rail of a dressing screen
+PROPS.eveningBag = o => {
+  const g = new T.Group(), top = o.top || 1.84, y = o.bagY || 1.24, jet = new T.MeshStandardMaterial({ color: 0x1b1a26, roughness: 0.3, metalness: 0.6 });
+  const body = mesh(SP(0.085, 22, 16), jet, 0, y, 0.035); body.scale.set(1, 0.9, 0.34); g.add(body);
+  g.add(mesh(BX(0.15, 0.016, 0.03), MAT.silver(), 0, y + 0.072, 0.035));
+  [-0.018, 0.018].forEach(x => g.add(mesh(SP(0.011, 10, 8), MAT.silver(), x, y + 0.09, 0.035)));
+  for (let i = 0; i < 11; i++) g.add(mesh(CY(0.0022, 0.0022, 0.045 + (i % 2) * 0.01, 4), jet, -0.065 + i * 0.013, y - 0.095, 0.035));
+  [-0.07, 0.07].forEach(x => g.add(rodBetween([x, y + 0.075, 0.035], [0, top - 0.03, 0.02], 0.0025, MAT.silver(), 5)));
+  g.add(mesh(TO(0.015, 0.003, 6, 12), MAT.brass(), 0, top - 0.02, 0.02));
+  return { g, col: [], anchor: [0, y, 0.5], small: true };
+};
+// a little arched niche in a stone wall, dark inside, and what was left in it
+PROPS.wallNiche = o => {
+  const g = new T.Group(), S = stoneMat('#827d72'), w = o.w || 0.46, h = o.h || 0.5, dp = 0.12, dark = MAT.paint('#0b0a09', 0.95);
+  [-1, 1].forEach(s => g.add(mesh(BX(0.07, h, dp), S, s * (w / 2 + 0.035), h / 2, dp / 2)));
+  g.add(mesh(BX(w + 0.2, 0.05, dp + 0.05), S, 0, -0.025, (dp + 0.05) / 2));
+  const arch = mesh(TO(w / 2 + 0.035, 0.035, 6, 20, Math.PI), S, 0, h, dp / 2); arch.scale.z = dp / 0.07; g.add(arch);
+  g.add(mesh(new T.PlaneGeometry(w, h), dark, 0, h / 2, 0.004)); g.add(mesh(new T.CircleGeometry(w / 2, 20, 0, Math.PI), dark, 0, h, 0.004));
+  g.add(mesh(BX(0.22, 0.045, 0.09), MAT.velvet('#121016'), -0.07, 0.023, 0.06));
+  const ink = new T.Group(); ink.add(mesh(CY(0.026, 0.03, 0.075, 14), new T.MeshStandardMaterial({ color: 0x3b1d63, roughness: 0.08, metalness: 0.2, transparent: true, opacity: 0.9 }), 0, 0.038, 0)); ink.add(mesh(CY(0.011, 0.013, 0.022, 10), MAT.black(), 0, 0.087, 0)); ink.position.set(0.12, 0, 0.06); g.add(ink);
+  return { g, col: [], anchor: [0, 0.25, 0.6], wall: true };
+};
+// the rope and pulley that haul up a serving hatch's shutter (built on the wall face, reaching out toward -x)
+PROPS.hatchRope = o => {
+  const g = new T.Group(), I = MAT.iron(), R = MAT.fabric('#8a7a5a');
+  g.add(mesh(BX(0.05, 0.05, 0.1), I, -0.02, 1.86, 0));
+  g.add(mesh(CY(0.06, 0.06, 0.025, 20), MAT.wood('oak', 0.6), -0.04, 1.8, 0, 0, 0, Math.PI / 2));
+  g.add(rodBetween([-0.04, 1.86, -0.05], [-0.01, 1.56, -0.45], 0.008, R, 6));
+  g.add(rodBetween([-0.04, 1.74, 0.0], [-0.04, 1.06, 0.03], 0.008, R, 6));
+  g.add(mesh(BX(0.03, 0.12, 0.03), I, -0.015, 1.02, 0.03));
+  g.add(mesh(TO(0.045, 0.009, 6, 16), R, -0.04, 0.95, 0.04, 0, Math.PI / 2, 0));
+  return { g, col: [], anchor: [-0.5, 1.3, 0] };
+};
+// a line of salt laid along a window sill
+PROPS.saltLine = o => {
+  const g = new T.Group(), w = o.w || 0.9, S = MAT.paint('#ebe7de', 0.97), R = mulberry32(5);
+  g.add(mesh(BX(w, 0.008, 0.026), S, 0, 0.004, 0));
+  for (let i = 0; i < 26; i++) g.add(mesh(BX(0.012 + R() * 0.02, 0.006 + R() * 0.006, 0.01 + R() * 0.012), S, (R() - 0.5) * w, 0.005, (R() - 0.5) * 0.03));
+  return { g, col: [], anchor: [0, 0.2, 0.5] };
+};
+
 /* ---------- building a room from its description ----------
    def: { name, w, d, h, floor, wall:{ paper, motif, style, seed }, wain, ceiling, fog, ambient, moon,
           lights:[...], alcoves:[...], objects:[...], start:{A:[x,z,yawDeg],B:[...]}, dark }
@@ -3882,7 +3932,10 @@ function bindInput() {
   cv.addEventListener('contextmenu', e => e.preventDefault());
   window.addEventListener('keydown', e => { if (!HG.store || document.activeElement === $('#h-chat-in')) return; INPUT.keys[e.code] = true; if (e.code === 'KeyE' || e.code === 'Space') { if (HG.focus && !HG.sheetOpen) openThing(HG.focus); else if (HG.ladder && !HG.sheetOpen) hClimbDown(); } if (e.code === 'KeyF') toggleTorch(); if (e.code === 'Escape') { if (HG.inspecting) closeInspect(); else if (HG.sheetOpen) closeSheet3(); } if (e.code === 'Enter' && !HG.sheetOpen) { $('#h-chat-in').focus(); e.preventDefault(); } });
   window.addEventListener('keyup', e => { INPUT.keys[e.code] = false; });
-  window.addEventListener('blur', () => { INPUT.keys = {}; INPUT.pad = null; });
+  // a finger lifted anywhere ends the hold it started, even if the button it pressed has been redrawn since
+  const holdEnd = e => { if (HG.holding && HG.holdPtr === e.pointerId) { HG.holdPtr = null; hStopHold(); } };
+  document.addEventListener('pointerup', holdEnd, true); document.addEventListener('pointercancel', holdEnd, true);
+  window.addEventListener('blur', () => { INPUT.keys = {}; INPUT.pad = null; if (HG.holding) hStopHold(); });
   window.addEventListener('resize', () => { if (HG.renderer) { resizeRenderer(); } });
 }
 function toggleTorch() { HG.flashOn = !HG.flashOn; hsfx.click(); $('#h-torch').classList.toggle('off', !HG.flashOn); hSendPos(true); }
@@ -4100,7 +4153,8 @@ const HI = {
 };
 const hIcon = n => HI[n] || I[n] || I.gem;
 let htoastT = null;
-function htoast(msg, ms) { const old = $('#screen-haunt .h-toast'); if (old) old.remove(); const el = document.createElement('div'); el.className = 'h-toast'; el.textContent = msg; $('#screen-haunt').appendChild(el); clearTimeout(htoastT); htoastT = setTimeout(() => el.remove(), ms || 2600); }
+function hLater(f) { (HG.afterScene = HG.afterScene || []).push(f); }
+function htoast(msg, ms) { if (HG.cine) { hLater(() => htoast(msg, ms)); return; } const old = $('#screen-haunt .h-toast'); if (old) old.remove(); const el = document.createElement('div'); el.className = 'h-toast'; el.textContent = msg; $('#screen-haunt').appendChild(el); clearTimeout(htoastT); htoastT = setTimeout(() => el.remove(), ms || 2600); }
 function hannounce(text, kind, hold) { const el = document.createElement('div'); el.className = 'h-announce ' + (kind || ''); el.style.setProperty('--hold', (hold || 1800) + 'ms'); el.textContent = text; $('#screen-haunt').appendChild(el); setTimeout(() => el.remove(), (hold || 1800) + 900); }
 function hSetupUI() {
   if (HG.uiBound) return; HG.uiBound = true;
@@ -4164,11 +4218,25 @@ function openThing(oid) {
 function closeSheet3() { const s = $('#h-sheet'); if (s) { s.classList.add('hidden'); s.innerHTML = ''; } HG.sheetObj = null; HG.sheetOpen = false; HG.sheetKey = ''; HG.miniDoneFor = null; if (HG.miniStop) { HG.miniStop(); HG.miniStop = null; } if (HG.holding) hStopHold(); }
 const hCanSee = o => !o.dark || (HG.flashOn) ;
 function hText(v, st) { return typeof v === 'function' ? v(st, hlvState()) : v; }
+// Two people, one moment: who is on the other end right now
+function hHoldGroup(o) { return o.together ? o : (HG.def.objects || []).find(p => p.together && p.together.includes(o.id)) || null; }
+function hHoldStatus(o) {
+  const g = hHoldGroup(o); if (!g || HG.solo || hDone(g.id) || !hUnlocked(g)) return '';
+  const pu = hPartnerUid(), pn = hPartnerName(), verb = g.holdVerb || 'holding on';
+  const mine = g.together.filter(id => hHeldFresh(id).includes(HG.meUid)), theirs = pu ? g.together.filter(id => hHeldFresh(id).includes(pu)) : [];
+  if (mine.length && mine.every(id => theirs.includes(id))) return `You and ${pn} are both on the same one. One of you, take the other.`;
+  if (!mine.length && o.hold && theirs.includes(o.id)) return `${pn} is already on this one. Take the other.`;
+  return `${pn} ${theirs.length ? 'is ' + verb + ' now.' : 'is not ' + verb + ' yet.'}${mine.length ? ' Keep holding.' : ''}`;
+}
 function hRefreshSheet(force) {
   const oid = HG.sheetObj, o = HG.objs[oid]; if (!o) { closeSheet3(); return; }
   if (!hvis(o) && !force) { closeSheet3(); return; }
-  const st = host(oid), unlocked = hUnlocked(o), key = JSON.stringify([st, hInv(), hKit(), unlocked, (hlvState().hints || {})[oid], HG.hintOpen, Object.keys(hSatchel())]);
-  if (!force && key === HG.sheetKey) return; HG.sheetKey = key;
+  // who is holding what changes several times a second: that only updates the line that says so, never the whole panel
+  // (rebuilding it would swap the button out from under a finger that is holding it down)
+  const st = host(oid), stK = Object.assign({}, st); delete stK.held; delete stK.wasHeld;
+  const unlocked = hUnlocked(o), key = JSON.stringify([stK, hInv(), hKit(), unlocked, (hlvState().hints || {})[oid], HG.hintOpen, Object.keys(hSatchel())]);
+  if (!force && key === HG.sheetKey) { const hs = $('#h-holdst'); if (hs) { const t = hHoldStatus(o); if (hs.textContent !== t) hs.textContent = t; } return; }
+  HG.sheetKey = key;
   if (HG.miniStop && !force) return;   // don't tear down a minigame mid-play
   const sh = $('#h-sheet'); sh.classList.remove('hidden');
   const solved = ['solved', 'open', 'taken'].includes(st.s);
@@ -4184,7 +4252,8 @@ function hRefreshSheet(force) {
     if (o.use) Object.keys(o.use).forEach(it => { if (hHas(it) && !(st.used || {})[it] && (!o.use[it].if || o.use[it].if(st, hlvState()))) acts.push(`<button type="button" data-a="use" data-i="${it}">${esc(o.use[it].label || 'Use the ' + hItemName(it).toLowerCase())}</button>`); });
     if (o.lock && !solved && (!o.lockIf || o.lockIf(st))) widget = hLockHTML(o);
     if (o.mini && !solved && HG.miniDoneFor !== oid && (!o.miniIf || o.miniIf(st))) widget = `<div class="hmini" id="h-mini"></div>`;
-    if (o.hold) acts.push(`<button type="button" data-a="hold" class="holdbtn">${esc(o.holdText || 'Press and hold')}</button>`);
+    if (o.hold) acts.push(`<button type="button" data-a="hold" data-h="${o.id}" class="holdbtn">${esc(o.holdText || 'Press and hold')}</button>`);
+    if (o.together && o.holdAll && !solved && o.together.some(id => HG.objs[id] && HG.objs[id].hold && hvis(HG.objs[id]))) acts.push(`<button type="button" data-a="hold" data-h="*" class="holdbtn">${esc(o.holdAll)}</button>`);
     if (o.action && !solved && (!o.action.showIf || o.action.showIf(st, hlvState()))) acts.push(`<button type="button" data-a="act">${esc(o.action.label)}</button>`);
     if (o.climb && (!o.climb.if || o.climb.if(st, hlvState()))) acts.push(`<button type="button" data-a="climb">${esc(o.climb.label || 'Climb up')}</button>`);
     (o.acts || []).forEach((ac, i) => { if (!ac.showIf || ac.showIf(st, hlvState())) acts.push(`<button type="button" class="${ac.sec ? 'sec' : ''}" data-a="x" data-i="${i}">${esc(ac.label)}</button>`); });
@@ -4194,9 +4263,20 @@ function hRefreshSheet(force) {
   html += widget;
   if ((o.lock || o.mini) && !solved && unlocked && (o.lock || o.mini).hints) html += hHintHTML(o);
   html += `<div class="fb" id="h-fb"></div>`;
+  if (unlocked && hHoldGroup(o) && !HG.solo) html += `<p class="holdst" id="h-holdst">${esc(hHoldStatus(o))}</p>`;
   if (acts.length) html += `<div class="acts">${acts.join('')}</div>`;
   sh.innerHTML = html; sh.scrollTop = 0;
-  sh.querySelectorAll('[data-a]').forEach(b => { if (b.dataset.a === 'hold') { const down = e => { e.preventDefault(); b.classList.add('on'); hStartHold(o); }, up = () => { b.classList.remove('on'); hStopHold(); }; b.addEventListener('pointerdown', down); b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up); b.addEventListener('pointerleave', up); } else b.onclick = () => hSheetAct(o, b); });
+  // a hold button on a two-person thing as a whole takes whichever end your partner is not already on
+  const holdTarget = b => { if (b.dataset.h !== '*') return HG.objs[b.dataset.h]; const ends = o.together.map(id => HG.objs[id]).filter(x => x && x.hold && hvis(x)); return ends.find(x => HG.holding === x.id) || ends.find(x => !hHeldFresh(x.id).some(u => u !== HG.meUid)) || ends[0]; };
+  const holdsHere = b => b.dataset.h === '*' ? o.together.includes(HG.holding) : b.dataset.h === HG.holding;
+  let holdShown = false;
+  sh.querySelectorAll('[data-a]').forEach(b => {
+    if (b.dataset.a !== 'hold') { b.onclick = () => hSheetAct(o, b); return; }
+    if (HG.holding && holdsHere(b)) { b.classList.add('on'); holdShown = true; }
+    const down = e => { e.preventDefault(); const t = holdTarget(b); if (!t) return; try { b.setPointerCapture(e.pointerId); } catch (err) {} b.classList.add('on'); HG.holdPtr = e.pointerId; hStartHold(t); }, up = () => { b.classList.remove('on'); if (HG.holding && holdsHere(b)) hStopHold(); };
+    b.addEventListener('pointerdown', down); b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up); b.addEventListener('lostpointercapture', up); b.addEventListener('contextmenu', e => e.preventDefault());
+  });
+  if (HG.holding && !holdShown) hStopHold();
   if (o.lock && widget) hWireLock(o, sh);
   if (o.mini && widget && MINI[o.mini.kind]) { HG.miniStop = MINI[o.mini.kind]($('#h-mini'), o, () => hMiniDone(o)) || null; }
 }
@@ -4245,7 +4325,22 @@ function openJournal(tab) {
     <div class="jlist">${keys.length ? keys.map(k => { const c = hClueOf(k), from = got[k]; return `<button type="button" class="jitem" data-k="${esc(k)}"><span>${HI.page}</span><div><b>${esc(c.title)}</b><small>${esc((HROOMS[c.lv - 1] || {}).name || '')}</small></div>${from ? `<span class="tag">from ${esc(from.from)}</span>` : ''}</button>`; }).join('') : '<p class="sub" style="text-align:center">Nothing yet. Anything you read goes in here, and anything your partner shares.</p>'}</div>`;
   box.classList.remove('hidden');
   $('#h-jclose').onclick = () => box.classList.add('hidden');
-  box.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { const c = hClueOf(b.dataset.k), pu = hPartnerUid(); overlay(`<h2>${esc(c.title)}</h2>${hClueHTML(c.o.clue)}`, [...(pu && !HG.solo ? [{ label: `Share with ${esc(hPartnerName())}`, act: async () => { await HG.store.update({ [`players/${pu}/got/${b.dataset.k}`]: { from: ctx.name || 'Your partner', at: Date.now() } }); hideOverlay(); htoast('Sent.', 1500); } }] : []), { label: 'Close', cls: 'secondary', act: hideOverlay }], { wide: true }); $('#overlay').classList.add('hm'); });
+  box.querySelectorAll('[data-k]').forEach(b => b.onclick = () => hOpenClue(b.dataset.k));
+}
+// a clue from the journal (or straight from your partner's note), on paper, with a way to pass it on if it is yours
+function hOpenClue(k) {
+  const c = hClueOf(k); if (!c) return; const pu = hPartnerUid(), mine = !!(hMine().notes || {})[k], from = (hMine().got || {})[k];
+  overlay(`<h2>${esc(c.o.clue.title && c.o.label ? c.o.label : c.title)}</h2>${from ? `<p class="sub" style="margin:-4px 0 6px">From ${esc(from.from || 'your partner')}, ${esc((HROOMS[c.lv - 1] || {}).name || '')}</p>` : ''}${hClueHTML(c.o.clue)}`,
+    [...(pu && !HG.solo && (mine || !from) ? [{ label: `Share with ${esc(hPartnerName())}`, act: async () => { await HG.store.update({ [`players/${pu}/got/${k}`]: { from: ctx.name || 'Your partner', at: Date.now() } }); hideOverlay(); htoast('Sent.', 1500); } }] : []), { label: 'Close', cls: 'secondary', act: hideOverlay }], { wide: true });
+  $('#overlay').classList.add('hm');
+}
+// your partner has shared something: say so at the top, with a button to read it there and then
+function hShareNote(k, from) {
+  if (HG.cine) { hLater(() => hShareNote(k, from)); return; }
+  const c = hClueOf(k); if (!c) return; const old = $('#screen-haunt .h-toast'); if (old) old.remove();
+  const el = document.createElement('div'); el.className = 'h-toast share'; el.innerHTML = `<span>${esc(from || 'Your partner')} shared <b>${esc(c.title)}</b></span><button type="button">Read it</button>`;
+  el.querySelector('button').onclick = () => { el.remove(); hOpenClue(k); };
+  $('#screen-haunt').appendChild(el); clearTimeout(htoastT); htoastT = setTimeout(() => el.remove(), 9000);
 }
 
 /* ---- hints: three per lock, each costing time ---- */
@@ -4354,10 +4449,15 @@ function hUpdateBubbles() {
   items.forEach(it => {
     let el = box.querySelector(`[data-b="${it.id}"]`); if (!el) { el = document.createElement('div'); el.dataset.b = it.id; el.className = 'h-bub' + (it.ghost ? ' ghost' : ''); box.appendChild(el); }
     const html = (it.who ? `<b>${esc(it.who)}</b>` : '') + esc(it.text); if (el.innerHTML !== html) el.innerHTML = html;
-    const v = it.pos.clone().project(HG.camera), W = box.clientWidth, Hh = box.clientHeight; let x = (v.x * 0.5 + 0.5) * W, y = (-v.y * 0.5 + 0.5) * Hh; const behind = v.z > 1;
-    const off = behind || x < 20 || x > W - 20 || y < 60 || y > Hh - 40; el.classList.toggle('edge', off);
-    if (off) { x = clamp(behind ? W - x : x, 150, W - 150); y = Math.max(70, Math.min(Hh * 0.25, y)); }
-    el.style.left = x + 'px'; el.style.top = y + 'px'; keep.add(it.id);
+    // keep the whole bubble on the screen (and clear of the black bars in a scene); the tail still points at the speaker
+    const v = it.pos.clone().project(HG.camera), W = box.clientWidth, Hh = box.clientHeight, x = (v.x * 0.5 + 0.5) * W, y = (-v.y * 0.5 + 0.5) * Hh, behind = v.z > 1;
+    const bw = el.offsetWidth, bh = el.offsetHeight, pad = 10, top0 = (HG.cine ? Hh * 0.12 : 60) + 6, bot0 = Hh - (HG.cine ? Hh * 0.12 : 120) - 6;
+    const off = behind || x < 0 || x > W || y < top0 - 30 || y > Hh;
+    let left, top, below = false;
+    if (off) { const cx = behind ? W - x : x; left = clamp(cx - bw / 2, pad, Math.max(pad, W - bw - pad)); top = top0; }
+    else { left = clamp(x - bw / 2, pad, Math.max(pad, W - bw - pad)); top = y - bh - 10; if (top < top0) { top = y + 14; below = true; } top = Math.max(top0, Math.min(top, bot0 - bh)); }
+    el.classList.toggle('edge', off); el.classList.toggle('below', below);
+    el.style.left = Math.round(left) + 'px'; el.style.top = Math.round(top) + 'px'; el.style.setProperty('--tx', Math.round(clamp(x - left, 18, bw - 18)) + 'px'); keep.add(it.id);
   });
   box.querySelectorAll('[data-b]').forEach(el => { if (!keep.has(el.dataset.b)) el.remove(); });
 }
@@ -4938,7 +5038,13 @@ function hNextStep() {
   const C = HG.cine; if (!C) return; C.i++;
   const s = C.steps[C.i]; if (!s) { hEndScene(); return; }
   let dur = s.dur != null ? s.dur : 0;
-  if (s.card != null) { const el = $('#h-card'); el.innerHTML = (s.small ? `<small>${esc(s.small)}</small>` : '') + esc(s.card).replace(/\n/g, '<br>'); el.classList.remove('hidden'); el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; if (s.dur == null) dur = Math.max(3, s.card.split(' ').length / 2.6 + 1.5); C.cardUntil = dur; }
+  if (s.card != null) {
+    // words in the middle stay up long enough to read, even when the scene moves on; a new line replaces the old one without fading out
+    const el = $('#h-card'), showing = !el.classList.contains('hidden'); HG.cardTok = (HG.cardTok || 0) + 1;
+    el.innerHTML = (s.small ? `<small>${esc(s.small)}</small>` : '') + esc(s.card).replace(/\n/g, '<br>'); el.classList.remove('hidden'); el.classList.toggle('big', s.card.length <= 14);
+    if (!showing) { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; }
+    if (s.dur == null) dur = Math.max(3, s.card.split(' ').length / 2.6 + 1.5); C.cardUntil = Math.max(dur, hReadTime(s.card + ' ' + (s.small || '')));
+  }
   if (s.cam) { C.cam = { from: new T.Vector3(...s.cam), to: new T.Vector3(...(s.to || s.cam)), l0: new T.Vector3(...(s.look || [0, 1.5, 0])), l1: new T.Vector3(...(s.lookTo || s.look || [0, 1.5, 0])), t: 0, dur: s.dur || 3 }; }
   if (s.cam === null) C.cam = null;
   if (s.ghost) { hGhost(s.ghost).then(gh => { if (s.mirror) mirrorOnly(gh.g); if (s.at) gh.g.position.set(s.at[0], s.at[2] || 0, s.at[1]); if (s.yaw != null) gh.g.rotation.y = rad(s.yaw); if (gh.P && s.anim) gh.P.play(s.anim); gh.fade = s.fade || 'in'; if (s.walkTo) { const from = gh.g.position.clone(), to = new T.Vector3(s.walkTo[0], 0, s.walkTo[1]); gh.P && gh.P.play(s.walkAnim || 'walk_slow'); if (s.walkTo) gh.g.rotation.y = Math.atan2(to.x - from.x, to.z - from.z); HG.world.anims.push({ t: 0, dur: s.walkDur || 3, step: k => { gh.g.position.lerpVectors(from, to, k); if (k >= 1 && gh.P) gh.P.play(s.endAnim || 'idle'); } }); } }); C.made.push(s.ghost); }
@@ -4961,12 +5067,17 @@ function hUpdateCine(dt) {
   if (C.cardUntil != null) { C.cardUntil -= dt; if (C.cardUntil <= 0) { $('#h-card').classList.add('hidden'); C.cardUntil = null; } }
   C.wait -= dt; if (C.wait <= 0) hNextStep();
 }
+function hReadTime(t) { const w = String(t).trim().split(/\s+/).length; return clamp(w / 3.2 + 1.1, 1.8, 6); }
 function hEndScene() {
   const C = HG.cine; if (!C) return; HG.cine = null;
-  $('#screen-haunt').classList.remove('cine'); $('#h-card').classList.add('hidden'); $('#h-bubbles').innerHTML = '';
+  $('#screen-haunt').classList.remove('cine'); $('#h-bubbles').innerHTML = '';
+  // the last words of a scene finish their time on screen
+  const cd = $('#h-card'), left = C.cardUntil || 0, tok = HG.cardTok;
+  if (left > 0.05 && !cd.classList.contains('hidden')) setTimeout(() => { if (HG.cardTok === tok && !HG.cine) cd.classList.add('hidden'); }, left * 1000); else cd.classList.add('hidden');
   C.made.forEach(n => { const g = HG.ghosts[n]; if (g && !(HG.def.keepGhosts || []).includes(n)) { g.fade = 'out'; setTimeout(() => { if (HG.ghosts[n] === g && g.fade === 'out') { HG.scene && HG.scene.remove(g.g); delete HG.ghosts[n]; } }, 2500); } });
   const sc = $('#h-scare'); sc.classList.add('hidden'); sc.style.opacity = '';
   if (C.done) C.done(); else hScenesCheck();
+  if (HG.afterScene && HG.afterScene.length) { const fs = HG.afterScene; HG.afterScene = []; setTimeout(() => fs.forEach(f => f()), 700); }
 }
 function hFx(kind, s) {
   if (kind === 'lightning') { HG.bolt = 0.6; hsfx.thunder(); const f = $('#h-flash'); f.classList.remove('on'); void f.offsetWidth; f.classList.add('on'); }
@@ -4980,6 +5091,7 @@ function hFx(kind, s) {
 let hollowFace = null;
 async function hScare(kind, at) {
   if (HG.scaring) return; HG.scaring = true; const soft = prefs.scares === false;
+  $('#h-card').classList.add('hidden'); if (HG.cine) HG.cine.cardUntil = null;
   hsfx.scare(); buzz([60, 30, 120]);
   if (kind === 'figure' || soft) { HG.flicker = 1.2; const gh = await hGhost('hollow'); const fwd = new T.Vector3(-Math.sin(HG.me.yaw), 0, -Math.cos(HG.me.yaw)); if (at) { gh.g.position.set(at[0], 0, at[1]); gh.g.rotation.y = Math.atan2(HG.me.x - at[0], HG.me.z - at[1]); } else { gh.g.position.set(HG.me.x + fwd.x * 3.2, 0, HG.me.z + fwd.z * 3.2); gh.g.rotation.y = HG.me.yaw; } gh.fade = 'in'; gh.op = 1; setTimeout(() => { gh.fade = 'out'; gh.op = 0; }, soft ? 250 : 700); setTimeout(() => { HG.scaring = false; }, 1500); return; }
   if (kind === 'lights') { HG.blackout = true; hsfx.whisper(null, 1.4); setTimeout(() => { HG.blackout = false; HG.scaring = false; }, 2200); return; }
@@ -5066,6 +5178,11 @@ function hOnRun(r) {
   HG.run = r; if (!r) return;
   HG.seat = HG.solo ? 'A' : (r.seats.A === HG.meUid ? 'A' : 'B');
   const lv = r.level || 1;
+  // waiting to move on together: go when the other one is ready too, or has gone, or has already gone on
+  if (HG.waitOnward) { const n = HG.waitOnward, on = ((r.lv || {})[n] || {}).onward || {}, pu = hPartnerUid();
+    if (lv > n) { HG.waitOnward = 0; hideOverlay(); }
+    else if ((pu && on[pu]) || !hPartnerInRoom(n, r)) { setTimeout(() => { if (HG.waitOnward === n) hGoOnward(n); }, 0); return; } }
+  if (HG.cardOpen) hOnwaitText();
   if (lv !== HG.level && !HG.cardOpen && HG.loadingLevel !== lv) { hLoadLevel(lv); return; }
   if (!HG.world || HG.loadingLevel) return;
   const mine = hMine(); if (mine && mine.lv !== HG.level && HG.level) HG.store.me({ lv: HG.level });
@@ -5076,7 +5193,7 @@ function hOnRun(r) {
   if (old.length && !HG.solo) HG.store.pruneChat(old).catch(() => {});
   // clues your partner sent you
   const got = mine.got || {}, pgot = ((prev && prev.players && prev.players[HG.meUid]) || {}).got || {};
-  Object.keys(got).forEach(k => { if (!pgot[k] && prev) { const c = hClueOf(k); hsfx.paper(); htoast(`${got[k].from || 'Your partner'} shared a clue: ${c ? c.title : 'a page'}. It is in your journal.`, 4200); hJournalBadge(); } });
+  Object.keys(got).forEach(k => { if (!pgot[k] && prev) { hsfx.paper(); hShareNote(k, got[k].from); hJournalBadge(); } });
   // a partner's torch, presses, scenes
   hSync3D(false); hScenesCheck();
   const st = hlvState(); if (st.doneAt && HG.cardShown !== HG.level && HG.world && !HG.cine) { HG.cardShown = HG.level; hRoomDone(HG.level, st); }
@@ -5255,7 +5372,7 @@ function hCheckSync() {
   if (!HG.def || !HG.world) return;
   HG.def.objects.forEach(o => {
     if (!o.together || hDone(o.id)) return; if (!hUnlocked(o)) return;
-    const need = HG.solo ? o.together.slice(0, 1) : o.together;
+    const need = HG.solo ? [o.together.find(id => hHeldFresh(id).length) || o.together[0]] : o.together;   // alone, either end will do
     if (hAllHeldDistinct(need)) { const upd = { [`lv/${HG.level}/obj/${o.id}/s`]: 'solved' }; need.forEach(id => { upd[`lv/${HG.level}/obj/${id}/s`] = host(id).s || 'used'; }); happly(o.onSolve || [], o, upd); hcommit(upd, o.solvedText || 'Together!', 'good').then(() => hsfx.unlockBig()); }
   });
 }
@@ -5264,11 +5381,30 @@ function hRoomDone(n, st) {
   const go = () => {
     const room = HROOMS[n - 1], last = n >= HROOMS.length, hints = Object.values(st.hints || {}).reduce((a, b) => a + b, 0);
     hRecordProgress(n, st); HG.cardOpen = true;
-    overlay(`<h2 class="hm-h">${esc(room.name)}</h2><div class="hm-story">${esc(room.outro || '')}</div><div class="hm-stats"><div><b>${fmtTime(st.time || 0)}</b><span>time${st.penalty ? ` (incl. +${fmtTime(st.penalty)} hints)` : ''}</span></div><div><b>${hints}</b><span>hints</span></div></div>`,
-      [{ label: last ? 'Into the dawn' : 'On, to ' + esc(HROOMS[n].name), act: async () => { hideOverlay(); HG.cardOpen = false; if (HG.run.level === n) { try { await HG.store.update({ level: n + 1, [`lv/${n + 1}/startedAt`]: HG.solo ? Date.now() : TS() }); } catch (e) { toast(friendlyDb(e)); } } if (HG.run.level > n) hLoadLevel(HG.run.level); } }]);
-    $('#overlay').classList.add('hm');
+    overlay(`<h2 class="hm-h">${esc(room.name)}</h2><div class="hm-story">${esc(room.outro || '')}</div><div class="hm-stats"><div><b>${fmtTime(st.time || 0)}</b><span>time${st.penalty ? ` (incl. +${fmtTime(st.penalty)} hints)` : ''}</span></div><div><b>${hints}</b><span>hints</span></div></div><p class="hint" id="h-onwait" style="min-height:1.2em;margin:8px 0 0"></p>`,
+      [{ label: last ? 'Into the dawn' : 'On, to ' + esc(HROOMS[n].name), act: () => hOnward(n) }]);
+    $('#overlay').classList.add('hm'); hOnwaitText();
   };
   const def = HROOMS[n - 1]; if (def.scenes && def.scenes.outro && !hSeen('outro')) hPlayScene('outro', go); else go();
+}
+// Moving on together: whoever finishes reading first waits for the other, so the next room's story starts for both at
+// once and nobody's page is taken away mid-sentence. If the other one has gone, or you would rather not wait, you go on.
+function hOnwaitText() { const w = $('#h-onwait'); if (!w || !HG.run) return; const on = ((HG.run.lv || {})[HG.level] || {}).onward || {}, pu = hPartnerUid(); w.textContent = pu && on[pu] && !HG.solo ? `${hPartnerName()} has finished reading and is ready to go on.` : ''; }
+function hPartnerInRoom(n, r) { const run = r || HG.run || {}, pu = hPartnerUid(), pp = pu && (run.players || {})[pu]; return !HG.solo && !!pp && !!pp.here && (pp.lv || 0) === n; }
+async function hOnward(n) {
+  const pu = hPartnerUid(), on = ((((HG.run || {}).lv || {})[n] || {}).onward) || {};
+  if ((HG.run || {}).level === n && hPartnerInRoom(n) && !on[pu]) {
+    HG.waitOnward = n; HG.cardOpen = false; try { await HG.store.update({ [`lv/${n}/onward/${HG.meUid}`]: TS() }); } catch (e) { /* the button below still works */ }
+    if (HG.waitOnward !== n || (HG.run || {}).level > n) return;
+    overlay(`<h2 class="hm-h">${esc(HROOMS[n - 1].name)}</h2><p>Waiting for ${esc(hPartnerName())} to finish reading.</p><p class="hint">The next room starts for both of you at the same moment.</p>`, [{ label: 'Go on without waiting', cls: 'secondary', act: () => hGoOnward(n) }]);
+    $('#overlay').classList.add('hm'); return;
+  }
+  hGoOnward(n);
+}
+async function hGoOnward(n) {
+  hideOverlay(); HG.cardOpen = false; HG.waitOnward = 0;
+  if (HG.run.level === n) { try { await HG.store.update({ level: n + 1, [`lv/${n + 1}/startedAt`]: HG.solo ? Date.now() : TS(), [`lv/${n}/onward/${HG.meUid}`]: TS() }); } catch (e) { toast(friendlyDb(e)); } }
+  if (HG.run.level > n && HG.level !== HG.run.level && HG.loadingLevel !== HG.run.level) hLoadLevel(HG.run.level);
 }
 function hRecordProgress(n, st) {
   if (HG.solo || !db || !ctx.authUid) return;
@@ -5422,10 +5558,11 @@ HROOMS.push({
     // the stairs, broken at the landing
     { id: 'stairs', kind: 'staircase', at: [0, -1.3], steps: 12, w: 1.6, runner: '#4a1418', label: 'The stairs', look: D(['QSBncmFuZCBzdGFpcmNhc2UsIGJyb2tlbiBhdCB0aGUgbGFuZGluZy4gVGhlIGJhbmlzdGVyIGhhbmdzIG92ZXIgbm90aGluZyBhbmQgYSBiZWFtIGhhcyBjb21lIGRvd24gYWNyb3NzIHRoZSB0b3AuIE5vYm9keSBpcyBnb2luZyB1cCB0aGVyZSB0b25pZ2h0Lg=='])[0] },
     // the cupboard beside the stair: swollen shut, two hands needed
-    { id: 'cupboard', kind: 'cupboard', at: [-1.55, -3.0], rot: -90, wood: 'oak', label: 'Cupboard by the stair', together: ['cup_l', 'cup_r'], task: 'Open the cupboard together', solvedText: 'The doors tear open',
+    { id: 'cupboard', kind: 'cupboard', at: [-1.55, -3.0], rot: -90, wood: 'oak', label: 'Cupboard by the stair', together: ['cup_l', 'cup_r'], holdAll: 'Pull a handle and hold', holdVerb: 'pulling a handle', task: 'Open the cupboard together', solvedText: 'The doors tear open',
       look: st => st.s === 'solved' ? 'Open now. Shelves, boots, a toolbox, an iron bar.' : 'A tall cupboard built in beside the stair. Both doors are swollen into the frame. One person pulling will never shift it. Two, each on a handle, pulling at the same moment, might.' },
-    { id: 'cup_l', kind: 'spot', at: [-1.83, 0.85, -3.42], w: 0.16, h: 0.22, d: 0.16, label: 'Left handle', hold: true, holdText: 'Pull and hold', task: 'Pull the left handle', taskWhen: 'held', look: D(['QSBicmFzcyBoYW5kbGUgb24gdGhlIGxlZnQtaGFuZCBkb29yLg=='])[0], showIf: () => !hDone('cupboard') },
-    { id: 'cup_r', kind: 'spot', at: [-1.83, 0.85, -2.58], w: 0.16, h: 0.22, d: 0.16, label: 'Right handle', hold: true, holdText: 'Pull and hold', task: 'Pull the right handle', taskWhen: 'held', look: D(['QSBicmFzcyBoYW5kbGUgb24gdGhlIHJpZ2h0LWhhbmQgZG9vci4='])[0], showIf: () => !hDone('cupboard') },
+    // the two brass knobs sit where the doors meet, at waist height
+    { id: 'cup_l', kind: 'spot', at: [-1.83, 0.82, -3.13], w: 0.18, h: 0.28, d: 0.26, label: 'Left handle', hold: true, holdText: 'Pull and hold', task: 'Pull the left handle', taskWhen: 'held', look: D(['QSBicmFzcyBoYW5kbGUgb24gdGhlIGxlZnQtaGFuZCBkb29yLg=='])[0], showIf: () => !hDone('cupboard') },
+    { id: 'cup_r', kind: 'spot', at: [-1.83, 0.82, -2.87], w: 0.18, h: 0.28, d: 0.26, label: 'Right handle', hold: true, holdText: 'Pull and hold', task: 'Pull the right handle', taskWhen: 'held', look: D(['QSBicmFzcyBoYW5kbGUgb24gdGhlIHJpZ2h0LWhhbmQgZG9vci4='])[0], showIf: () => !hDone('cupboard') },
     { id: 'toolbox', kind: 'toolbox', at: [-1.55, 0.06, -3.0], rot: -90, label: 'Toolbox', open: true, openText: 'Open the lid', task: 'Open the toolbox', showIf: () => hDone('cupboard'), look: st => st.opened ? 'Screwdrivers, wire, a roll of tape, and a little box of fuses with one left in it.' : 'A green-painted toolbox.', onOpen: ['reveal:fuse2'] },
     { id: 'fuse2', kind: 'item', model: 'fuse', at: [-1.5, 0.3, -3.0], hidden: true, label: 'Ceramic fuse', take: 'fuse2', task: 'Take the ceramic fuse', look: D(['QSB3aGl0ZSBjZXJhbWljIGZ1c2Uu'])[0] },
     { id: 'crowbar', kind: 'item', model: 'crowbar', at: [-1.55, 0.6, -3.0], tilt: [0, 0.4, 0], label: 'Crowbar', take: 'crowbar', task: 'Take the crowbar', showIf: () => hDone('cupboard'), look: D(['QSBzaG9ydCBjcm93YmFyIG9uIHRoZSBzaGVsZi4='])[0] },
@@ -5603,7 +5740,7 @@ HROOMS.push({
     // the table, the board, the planchette
     { id: 'seance', kind: 'seanceTable', at: [0.2, 0.2], label: 'The séance table', look: D(['QSByb3VuZCB0YWJsZSB1bmRlciBhIGJsYWNrIHZlbHZldCBjbG90aCwgc2l4IGNoYWlycyBhYm91dCBpdC4gT24gaXQgYSB0YWxraW5nIGJvYXJkLCBhIHBsYW5jaGV0dGUsIGFuZCBjYW5kbGVzIHNvbWVib2R5IGhhcyBsaXQuIFdheCBoYXMgcnVuIGRvd24gdGhlIGNhbmRsZXN0aWNrcyBhbmQgc2V0IGhhcmQgYSBsb25nIHRpbWUgYWdvLCB5ZXQgdGhlIGZsYW1lcyBhcmUgbmV3Lg=='])[0],
       sync3d: (rec, st) => { const pl = rec.parts.planchette; if (!pl || rec.plSet) return; rec.plSet = true; if (hDone('ouija')) pl.position.copy(planchetteAt(rec, 'R')); } },
-    { id: 'ouija', kind: 'spot', at: [0.2, 0.78, 0.22], w: 0.62, h: 0.06, d: 0.44, label: 'Talking board', together: ['plL', 'plR'], task: 'Put your hands on the planchette, together', solvedText: 'It moves',
+    { id: 'ouija', kind: 'spot', at: [0.2, 0.78, 0.22], w: 0.62, h: 0.06, d: 0.44, label: 'Talking board', together: ['plL', 'plR'], holdAll: 'Fingers on the planchette', holdVerb: 'touching the planchette', task: 'Put your hands on the planchette, together', solvedText: 'It moves',
       look: st => st.s === 'solved' ? 'The planchette has come to rest on the R. Neither of you is touching it.' : 'A talking board: the alphabet in two arcs, YES and NO, GOOD BYE. The planchette is warm, as though someone has just taken their fingers off it. Mrs Crane’s note on the box lid: TWO SITTERS, FINGERS LIGHT, NEVER ALONE.',
       onSolve: ['scene:ouija'] },
     { id: 'plL', kind: 'spot', at: [-0.62, 0.78, 0.2], w: 0.3, h: 0.12, d: 0.4, label: 'Your side of the board', hold: true, holdText: 'Fingers on the planchette', task: 'Rest your fingers on the planchette', taskWhen: 'held', showIf: () => !hDone('ouija'), look: D(['VGhlIG5lYXIgZWRnZSBvZiB0aGUgYm9hcmQuIFlvdSBjb3VsZCByZXN0IHlvdXIgZmluZ2VycyBvbiB0aGUgcGxhbmNoZXR0ZSBmcm9tIGhlcmUu'])[0] },
@@ -6158,6 +6295,7 @@ HROOMS.push({
     { id: 'exit', kind: 'door', wall: 'e', along: 3.4, w: 0.9, h: 2.2, wood: 'pine', door: true, exit: true, requires: ['thimble'], lockedText: D(['VGhlIGJhY2sgc3RhaXJzIGRvb3IuIEFnbmVz4oCZcyBrZXkgd291bGQgZml0IGl0LCBidXQgdGhlIGxvY2sgd2lsbCBub3QgdHVybiB3aGlsZSBzb21ldGhpbmcgaW4gdGhpcyBob3VzZSBpcyB1bmZpbmlzaGVkLg=='])[0], label: 'Back stairs door', task: 'Open the back stairs door', enterText: 'Go up the back stairs',
       look: D(['QSBwbGFpbiBkb29yIHRvIHRoZSBiYWNrIHN0YWlycywgdXAgdG8gdGhlIGJlZHJvb21zLiBMb2NrZWQu'])[0], openLook: D(['T3Blbi4gTmFycm93IHN0YWlycyBnb2luZyB1cC4='])[0], use: { stairkey: { label: 'Use Agnes’s key', state: 'open', text: D(['SXQgdHVybnMgYXQgbGFzdC4='])[0] } } },
     { id: 'win1', kind: 'window', wall: 'n', along: -1.6, w: 1.0, h: 1.4, y: 1.7, curtain: '#5a5040', label: 'Kitchen window', look: D(['QmxhY2sgZ2xhc3MsIHJ1bm5pbmcgd2l0aCByYWluLiBBbG9uZyB0aGUgc2lsbCwgYSBsaW5lIG9mIHNhbHQu'])[0] },
+    { id: 'saltline', kind: 'saltLine', at: [-1.6, 0.995, -4.40], w: 0.95, decor: true },
     { id: 'salt', kind: 'spot', at: [-1.6, 0.98, -4.38], w: 1.0, h: 0.06, d: 0.1, label: 'Salt on the sill', task: 'Look at the salt on the sill', taskWhen: 'seen', look: D(['QSBsaW5lIG9mIHNhbHQgYWxvbmcgdGhlIHNpbGwsIHVuYnJva2VuIGZyb20gZW5kIHRvIGVuZC4gQWduZXPigJlzIGRvaW5nLCB0byBrZWVwIHRoaW5ncyBvdXQuIFNvbWV0aGluZyBoYXMgc2NyYXRjaGVkIGF0IGl0IGZyb20gdGhlIG90aGVyIHNpZGUgb2YgdGhlIGdsYXNzLg=='])[0] },
     { id: 'win2', kind: 'window', wall: 'n', along: 3.0, w: 1.0, h: 1.4, y: 1.7, curtain: '#5a5040', label: 'Window', look: D(['VGhlIGtpdGNoZW4geWFyZCwgYW5kIHRoZSBwdW1wLCBhbmQgdGhlIGRhcmsu'])[0] },
     // ---- the kitchen (Ana's side) ----
@@ -6185,7 +6323,8 @@ HROOMS.push({
     { id: 'hatch', kind: 'shutter', at: [0, 0.95, -2.4], rot: 90, w: 0.8, h: 0.6, opens: true, label: 'Serving hatch', task: 'Open the serving hatch', taskWhen: 'solved',
       look: st => st.s === 'solved' ? 'The hatch is open. You can see through to the other side.' : 'A serving hatch through the wall, its wooden shutter jammed. On the kitchen side a rope runs up over a pulley.',
       sync3d: () => {} },
-    { id: 'hrope', kind: 'spot', at: [-0.35, 1.0, -2.4], w: 0.3, h: 0.7, d: 0.6, visibleTo: 'A', label: 'Hatch rope', task: 'Haul up the hatch shutter', taskWhen: () => hDone('hatch'), showIf: () => !hDone('hatch'), look: D(['QSByb3BlIG92ZXIgYSBwdWxsZXksIHRvIGhhdWwgdGhlIHNodXR0ZXIgdXAuIEl0IGlzIHZlcnkgc3RpZmYu'])[0],
+    { id: 'hropeV', kind: 'hatchRope', at: [-0.08, -1.95], decor: true },
+    { id: 'hrope', kind: 'spot', at: [-0.3, 0.95, -2.3], w: 0.4, h: 0.95, d: 0.9, visibleTo: 'A', label: 'Hatch rope', task: 'Haul up the hatch shutter', taskWhen: () => hDone('hatch'), showIf: () => !hDone('hatch'), look: D(['QSByb3BlIG92ZXIgYSBwdWxsZXksIHRvIGhhdWwgdGhlIHNodXR0ZXIgdXAuIEl0IGlzIHZlcnkgc3RpZmYu'])[0],
       mini: { kind: 'haul', step: 0.07, needsHold: ['hpush'], holdMsg: 'It will not move from this side alone. Somebody has to push up on the shutter from the other side.', doneText: 'The shutter rattles up into its box.', hints: D(['SXQgaXMgc3R1Y2sgYXQgdGhlIGJvdHRvbS4gU29tZW9uZSBvbiB0aGUgb3RoZXIgc2lkZSBvZiB0aGUgd2FsbCBoYXMgdG8gcHVzaCB3aGlsZSB5b3UgcHVsbC4=', 'TGVmdCBoYW5kLCByaWdodCBoYW5kLCBxdWlja2x5LiBTYW1lIGhhbmQgdHdpY2UgYW5kIGl0IHNsaXBzLg==', 'R2V0IHlvdXIgcGFydG5lciBwdXNoaW5nIGZyb20gdGhlIHNlcnZhbnRz4oCZIGhhbGwsIHRoZW4gcHVsbCBsZWZ0LCByaWdodCwgbGVmdCwgcmlnaHQu']), onSolve: ['solve:hatch'] } },
     { id: 'hpush', kind: 'spot', at: [0.35, 1.0, -2.4], w: 0.3, h: 0.7, d: 0.6, visibleTo: 'B', label: 'The hatch shutter', hold: true, holdText: 'Push it up', task: 'Push the hatch shutter up', taskWhen: () => hDone('hatch'), showIf: () => !hDone('hatch'), look: D(['VGhlIHVuZGVyc2lkZSBvZiB0aGUgc2h1dHRlci4gSWYgeW91IHB1c2ggd2hpbGUgc29tZWJvZHkgaGF1bHMgZnJvbSB0aGUga2l0Y2hlbiBzaWRlLCBpdCBtaWdodCBnby4='])[0] },
     // the baize door between
@@ -6328,7 +6467,7 @@ HROOMS.push({
     { id: 'hunt', kind: 'none', label: 'Something on the stairs', task: 'Keep still while it passes', taskWhen: st => !!st.done },
     // the dressing screen, the evening bag, the dance card
     { id: 'screen', kind: 'screen3', at: [3.7, -3.7], rot: -40, label: 'Dressing screen', look: D(['QSBmb2xkaW5nIHNjcmVlbiBwYWludGVkIHdpdGggZ29sZGVuIGxlYXZlcy4gQSB2ZWx2ZXQgZ293biBoYW5ncyBvdmVyIGl0LCBhbmQgYW4gZXZlbmluZyBiYWcgb24gYSBjb3JkLg=='])[0] },
-    { id: 'ebag', kind: 'spot', at: [3.5, 1.1, -3.4], w: 0.25, h: 0.3, d: 0.25, visibleTo: 'B', label: 'Evening bag', task: 'Look in the evening bag', look: D(['QSBiZWFkZWQgZXZlbmluZyBiYWcuIEluc2lkZSwgYSBkYW5jZSBjYXJkLCBrZXB0IGEgdmVyeSBsb25nIHRpbWUu'])[0],
+    { id: 'ebag', kind: 'eveningBag', at: [3.725, -3.653], rot: -40, visibleTo: 'B', label: 'Evening bag', task: 'Look in the evening bag', look: D(['QSBiZWFkZWQgZXZlbmluZyBiYWcuIEluc2lkZSwgYSBkYW5jZSBjYXJkLCBrZXB0IGEgdmVyeSBsb25nIHRpbWUu'])[0],
       clue: { style: 'card', title: 'Harrogate Assembly Rooms. Saturday 7th August 1909', text: D(['RGFuY2UgY2FyZCBvZiBNaXNzIEUuIEFzaHdvcnRoLgoxLiBUaGUgTGFuY2VyczogTXIgVy4gUGVsbAoyLiBXYWx0ejogTXIgQS4gSGFsZSwgYXQgYSBxdWFydGVyIHBhc3QgbmluZQozLiBQb2xrYTogQ2FwdGFpbiBMaXN0ZXIKNC4gV2FsdHo6IE1yIEEuIEhhbGUgYWdhaW4h'])[0] } },
     // the fireplace and the little clock
     { id: 'fire', kind: 'fireplace', wall: 'w', along: -3.3, y: 0, label: 'Fireplace', task: 'Look in the fireplace', look: D(['QXNoZXMsIGFuZCBhbW9uZyB0aGVtIHNjcmFwcyBvZiBhIGxldHRlciB0aGF0IGRpZCBub3QgYnVybi4='])[0], clue: { style: 'burnt', title: 'Scraps, half burnt', text: D(['Li4udGhlIHVuYmluZGluZyB0byBiZSByZWFkIGJ5IHR3byB2b2ljZXMuLi4KLi4uYXQgdGhlIHN0cm9rZSwgdGhlIGtleXMgdHVybmVkIHRvZ2V0aGVyLCB0aGUgaG91c2XigJlzIG93biBhbmQgdGhlIGNsb2Nr4oCZcy4uLgouLi5hbmQgZXZlcnkgZ2lmdCByZXR1cm5lZCB0byBpdHMgcGxhY2UuLi4KLi4ub3Igd2hhdCB3YXMgYm91bmQgd2lsbCBzdGF5IGJvdW5kLi4u'])[0] } },
@@ -6692,14 +6831,14 @@ HROOMS.push({
     { id: 'brakeWl', kind: 'brakeLever', at: [-0.72, 0.68, 0.12], decor: true }, { id: 'brakeEl', kind: 'brakeLever', at: [0.72, 0.68, 0.12], decor: true },
     { id: 'brakeW', kind: 'spot', at: [-0.72, 0.68, 0.22], w: 0.24, h: 0.62, d: 0.3, label: 'Brake lever', hold: true, holdText: 'Pull it and hold', task: 'Pull the west brake', taskWhen: 'held', look: D(['QW4gaXJvbiBsZXZlciB3aXRoIGEgd29vZGVuIGdyaXA6IG9uZSBvZiB0aGUgdHdvIGJyYWtlcyB0aGF0IGhvbGQgdGhlIHRyYWluIG9mIHdoZWVscyBzdGlsbC4gVGhlIG90aGVyIGlzIGF0IHRoZSBmYXIgZW5kIG9mIHRoZSBmcmFtZS4='])[0], showIf: () => !hDone('brake') },
     { id: 'brakeE', kind: 'spot', at: [0.72, 0.68, 0.22], w: 0.24, h: 0.62, d: 0.3, label: 'Brake lever', hold: true, holdText: 'Pull it and hold', task: 'Pull the east brake', taskWhen: 'held', look: D(['QW4gaXJvbiBsZXZlciB3aXRoIGEgd29vZGVuIGdyaXA6IG9uZSBvZiB0aGUgdHdvIGJyYWtlcyB0aGF0IGhvbGQgdGhlIHRyYWluIG9mIHdoZWVscyBzdGlsbC4gVGhlIG90aGVyIGlzIGF0IHRoZSBmYXIgZW5kIG9mIHRoZSBmcmFtZS4='])[0], showIf: () => !hDone('brake') },
-    { id: 'brake', kind: 'none', label: 'The brakes', together: ['brakeW', 'brakeE'], requires: ['beat'], task: 'Release the brakes together', solvedText: 'The brakes come off', onSolve: ['scene:backwards'] },
+    { id: 'brake', kind: 'none', label: 'The brakes', together: ['brakeW', 'brakeE'], holdVerb: 'pulling a brake', requires: ['beat'], task: 'Release the brakes together', solvedText: 'The brakes come off', onSolve: ['scene:backwards'] },
     // the pendulum
     { id: 'pendulum', kind: 'pendulumBig', at: [0, 2.35], top: 4.9, len: 3.7, beam: 7, label: 'The great pendulum', task: 'Start the great pendulum', requires: ['wind', 'motion', 'movement'],
       lockedText: D(['WW91IGdpdmUgdGhlIGJvYiBhIHB1c2guIEl0IHN3aW5ncywgYW5kIHNsb3dzLCBhbmQgc3RvcHMuIFRoZSBjbG9jayBoYXMgbm8gcG93ZXIsIG9yIG5vIHdheSB0byB0dXJuIGl0cyBoYW5kcywgb3IgaXRzIHdoZWVscyBhcmUgZ3VtbWVkIHNvbGlkLCBvciBhbGwgdGhyZWUu'])[0],
       look: st => st.s === 'solved' ? 'It swings by itself now, slow and heavy, two seconds a beat.' : 'The great pendulum: a rod as long as a tree, and a bob like a brass shield. Ambrose stopped it with his own hands.',
       mini: { kind: 'swing', need: 0.8, push: 0.5, damp: 0.92, k: 9.8, note: 'Push the bob as it swings back through the middle, moving away from you. Build it up until the clock catches it.', button: 'Push the bob', doneText: 'The escapement catches it. Tick. And tock.',
         hints: D(['VGhlIGNsb2NrIG5lZWRzIHBvd2VyLCBpdHMgbW90aW9uIHdvcmssIGFuZCBvaWwgYmVmb3JlIGl0IHdpbGwgZ28u', 'UHVzaCBvbmx5IGFzIHRoZSBib2IgcGFzc2VzIHRocm91Z2ggdGhlIG1pZGRsZSwgbW92aW5nIGF3YXkgZnJvbSB5b3Uu', 'T25lIHB1c2ggYXQgdGhlIGJvdHRvbSBvZiBldmVyeSBzd2luZy4gV2FpdCBmb3IgaXQgdG8gY29tZSBiYWNrIGVhY2ggdGltZS4=']), solvedText: 'Tick', onSolve: ['scene:tick'] } },
-    { id: 'beat', kind: 'spot', at: [0, 0.78, 0.62], w: 0.5, h: 0.5, d: 0.3, label: 'The crutch', task: 'Put the clock in beat', requires: ['pendulum'], lockedText: D(['VGhlIGNydXRjaCBjYXJyaWVzIHRoZSBwZW5kdWx1beKAmXMgc3dpbmcgaW50byB0aGUgbW92ZW1lbnQuIEl0IGRvZXMgbm90aGluZyB3aGlsZSB0aGUgcGVuZHVsdW0gaGFuZ3Mgc3RpbGwu'])[0],
+    { id: 'beat', kind: 'spot', at: [0, 0.72, 0.13], w: 0.36, h: 0.6, d: 0.3, label: 'The crutch', task: 'Put the clock in beat', requires: ['pendulum'], lockedText: D(['VGhlIGNydXRjaCBjYXJyaWVzIHRoZSBwZW5kdWx1beKAmXMgc3dpbmcgaW50byB0aGUgbW92ZW1lbnQuIEl0IGRvZXMgbm90aGluZyB3aGlsZSB0aGUgcGVuZHVsdW0gaGFuZ3Mgc3RpbGwu'])[0],
       look: st => st.s === 'solved' ? 'Tick, and tock, evenly, like a heartbeat.' : 'The crutch, the arm that carries the swing of the pendulum into the movement. Bend it, and the tick and the tock come closer together or further apart.',
       mini: { kind: 'beat', start: 0.15, tol: 0.016, need: 6, note: 'Listen: tick and tock should fall evenly, like a heartbeat. Bend the crutch a hair at a time until they do.', doneText: 'Tick. Tock. Tick. Tock. Even as a heartbeat.',
         hints: D(['TGlzdGVuIHRvIGl0LCBhbmQgd2F0Y2ggdGhlIG1hcmtzIGFsb25nIHRoZSBib3R0b206IHRpY2sgYW5kIHRvY2sgc2hvdWxkIGJlIHRoZSBzYW1lIGRpc3RhbmNlIGFwYXJ0Lg==', 'SWYgYmVuZGluZyBpdCBvbmUgd2F5IG1ha2VzIHRoZSBnYXBzIG1vcmUgdW5ldmVuLCBiZW5kIGl0IHRoZSBvdGhlciB3YXku', 'SG9sZCB0aGUgYnV0dG9uIHVudGlsIHRoZSBtYXJrcyBhcmUgbmVhcmx5IGV2ZW4sIHRoZW4gdGFwIGEgbGl0dGxlIGF0IGEgdGltZSwgYW5kIGxlYXZlIGl0IG9uY2UgaXQgc2F5cyBldmVuLg==']), solvedText: 'In beat' } },
@@ -6903,7 +7042,7 @@ HROOMS.push({
       sync3d: (rec, st, instant) => { const s = rec.parts.slab, open = hDone('slab'); if (s && rec.slabOpen !== open) { rec.slabOpen = open; const to = open ? -0.62 : 0; if (instant || !HG.world) s.position.z = to; else { const f = s.position.z; HG.world.anims.push({ t: 0, dur: 1.6, step: k => { s.position.z = f + (to - f) * ease(k); } }); hsfx.creak(rec.anchor.toArray()); } } if (rec.parts.key) rec.parts.key.visible = !!host('altarkey').keyed; } },
     { id: 'slabW', kind: 'spot', at: [-1.08, 0.75, -4.85], w: 0.3, h: 0.45, d: 0.7, label: 'End of the altar slab', hold: true, holdText: 'Push and hold', task: 'Push the altar slab from the left', taskWhen: 'held', showIf: () => !hDone('slab'), look: D(['VGhlIGVuZCBvZiB0aGUgaGVhdnkgdG9wIHNsYWIuIFB1c2hlZCBmcm9tIGJvdGggZW5kcyBhdCBvbmNlLCBpdCBtaWdodCBzbGlkZS4='])[0] },
     { id: 'slabE', kind: 'spot', at: [1.08, 0.75, -4.85], w: 0.3, h: 0.45, d: 0.7, label: 'End of the altar slab', hold: true, holdText: 'Push and hold', task: 'Push the altar slab from the right', taskWhen: 'held', showIf: () => !hDone('slab'), look: D(['VGhlIGVuZCBvZiB0aGUgaGVhdnkgdG9wIHNsYWIuIFB1c2hlZCBmcm9tIGJvdGggZW5kcyBhdCBvbmNlLCBpdCBtaWdodCBzbGlkZS4='])[0] },
-    { id: 'slab', kind: 'none', label: 'The altar slab', together: ['slabW', 'slabE'], task: 'Slide the altar slab back together', solvedText: 'It grinds back' },
+    { id: 'slab', kind: 'none', label: 'The altar slab', together: ['slabW', 'slabE'], holdVerb: 'pushing the slab', task: 'Slide the altar slab back together', solvedText: 'It grinds back' },
     { id: 'altarkey', kind: 'spot', at: [0.25, 0.98, -4.8], w: 0.32, h: 0.22, d: 0.32, label: 'A lock in the altar', task: 'Put the clock key in the altar', taskWhen: st => !!st.keyed, showIf: () => hDone('slab'),
       look: st => st.keyed ? 'The clock key sits in the lock, its little clock face looking up at you. Waiting for the stroke.' : 'A brass lock let into the altar stone, a keyhole in the middle of it. Around the rim, engraved: THE CLOCK’S OWN KEY.',
       acts: [{ label: 'Put the clock key in the lock', showIf: st => !st.keyed && !!hSatchel().clockkey, effects: ['set:altarkey:keyed:true'], text: D(['SXQgc2xpZGVzIGluLiBJdCB3aWxsIG5vdCB0dXJuIHlldC4='])[0] },
@@ -6921,7 +7060,7 @@ HROOMS.push({
     { id: 'turn', kind: 'none', label: 'The keys', task: 'Turn both keys on the twelfth stroke', taskWhen: () => hDone('turn') },
     // ---- the chapel itself ----
     ...[[-1.9, 2.8], [1.9, 2.8], [-1.9, 3.8], [1.9, 3.8]].map(([x, z], i) => ({ id: 'pew' + i, kind: 'pew', at: [x, z], w: 2.2, decor: true })),
-    { id: 'niche', kind: 'spot', at: [-4.35, 1.1, -2.6], w: 0.3, h: 0.5, d: 0.6, label: 'A niche in the wall', task: 'Look in the niche', taskWhen: 'seen', look: D(['QSBsaXR0bGUgbmljaGUgaW4gdGhlIHdhbGwsIHdoZXJlIGEgc2FpbnQgb25jZSBzdG9vZC4gTm93OiBhIGZvbGRlZCBibGFjayBzaGF3bCB0aGF0IHNtZWxscyBvZiB2aW9sZXRzLCBhbmQgYSBib3R0bGUgb2YgaW5rLCB0aGUgdmlvbGV0IGluayB0aGF0IG9ubHkgc2hvd3MgdW5kZXIgYSB2aW9sZXQgbGlnaHQuIE1ycyBDcmFuZSBtYXJrZWQgZXZlcnl0aGluZy4='])[0] },
+    { id: 'niche', kind: 'wallNiche', wall: 'w', along: 2.6, y: 1.1, label: 'A niche in the wall', task: 'Look in the niche', taskWhen: 'seen', look: D(['QSBsaXR0bGUgbmljaGUgaW4gdGhlIHdhbGwsIHdoZXJlIGEgc2FpbnQgb25jZSBzdG9vZC4gTm93OiBhIGZvbGRlZCBibGFjayBzaGF3bCB0aGF0IHNtZWxscyBvZiB2aW9sZXRzLCBhbmQgYSBib3R0bGUgb2YgaW5rLCB0aGUgdmlvbGV0IGluayB0aGF0IG9ubHkgc2hvd3MgdW5kZXIgYSB2aW9sZXQgbGlnaHQuIE1ycyBDcmFuZSBtYXJrZWQgZXZlcnl0aGluZy4='])[0] },
     { id: 'plaque', kind: 'tablet', wall: 'e', along: -1.0, y: 1.7, w: 0.9, h: 0.64, key: 'r10plaque', text: D(['TElMWSBST1NFIEhBTEUKQkVMT1ZFRCBEQVVHSFRFUiBBTkQgU0lTVEVSCkJPUk4gM1JEIE1BWSAxOTE2ClRBS0VOIEZST00gVVMgMTRUSCBGRUJSVUFSWSAxOTI2Ck5PVCBMT1NULCBCVVQgR09ORSBCRUZPUkU='])[0], label: 'A stone tablet', task: 'Read the tablet on the wall', look: D(['QSBzdG9uZSB0YWJsZXQgb24gdGhlIHdhbGwsIHRoZSBsZXR0ZXJzIHN0aWxsIHNoYXJwLg=='])[0],
       clue: { style: 'card', text: D(['TGlseSBSb3NlIEhhbGUuCkJlbG92ZWQgZGF1Z2h0ZXIgYW5kIHNpc3Rlci4KQm9ybiAzcmQgTWF5IDE5MTYuClRha2VuIGZyb20gdXMgMTR0aCBGZWJydWFyeSAxOTI2LgoKTm90IGxvc3QsIGJ1dCBnb25lIGJlZm9yZS4='])[0] } },
     { id: 'evhand', kind: 'item', model: 'note', at: [-1.2, 0.47, 2.7], tilt: [0, -0.5, 0], label: 'A handkerchief on the pew', task: 'Look at the handkerchief', look: D(['QSBsYWNlIGhhbmRrZXJjaGllZiwgZW1icm9pZGVyZWQgRS4gSC4sIGZvbGRlZCByb3VuZCBhIHNsaXAgb2YgcGFwZXIu'])[0],
