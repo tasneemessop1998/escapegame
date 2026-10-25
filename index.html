@@ -2,7 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
-<meta name="build" content="2026.10.25-0913">
+<meta name="build" content="2026.10.25-0930">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="theme-color" content="#0d0b10">
@@ -567,7 +567,7 @@ body.haunt-mode #screen-lobby h3{color:#c9a24a;font-family:'IM Fell English',Geo
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="firebase-config.js"></script>
 <script>
-const BUILD = '2026.10.25-0913';
+const BUILD = '2026.10.25-0930';
 (() => {
 'use strict';
 const VERSION = '2.0';
@@ -4271,8 +4271,11 @@ function hFitChatbar() { const bar = $('#h-chatbar'); if (!bar) return; const vv
 function hRenderMute() { $('#h-mute').innerHTML = prefs.sound ? I.sound : I.mute; }
 function hClockTick() { if (!HG.run || !HG.ready) return; const st = hlvState(); const base = typeof st.startedAt === 'number' ? st.startedAt : Date.now(); const secs = st.doneAt ? (st.time || 0) : Math.round((Date.now() - base) / 1000) + (st.penalty || 0); const el = $('#h-clock'); el.textContent = fmtTime(secs); el.classList.toggle('pen', !!st.penalty); }
 function hTasks() { return (HG.def ? HG.def.objects : []).filter(o => o.task); }
+// what is still to do before the way out will let you through (alone in a two-person run, the other side's own things are not asked of you)
+function hExitLeft(exit) { const lone = !HG.solo && !hPartnerUid(); return hTasks().filter(t => t !== exit && !hTaskDone(t) && !(lone && t.visibleTo && t.visibleTo !== HG.seat)); }
+const hLeftText = n => n === 1 ? 'There is still one thing in this room to find or do.' : `There are still ${n} things in this room to find or do.`;
 function hTaskWhen(o) { if (o.taskWhen) return o.taskWhen; if (o.take || o.gift || o.kit) return 'taken'; if (o.lock || o.mini || o.together || o.action) return 'solved'; if (o.door) return 'open'; if (o.open) return 'opened'; if (o.hold) return 'held'; if (o.use) return 'used'; return 'read'; }
-function hTaskDone(o) { const st = host(o.id), w = hTaskWhen(o); if (w === 'taken') return st.s === 'taken'; if (w === 'solved') return ['solved', 'open', 'on'].includes(st.s); if (w === 'open') return st.s === 'open' || !!st.entered; if (w === 'opened') return !!st.opened || st.s === 'open'; if (w === 'held') return !!st.wasHeld; if (w === 'used') return !!st.used || ['open', 'solved'].includes(st.s); if (w === 'read') return !!st.read; if (w === 'seen') return !!st.seen; if (w === 'lit') return !!st.lit; if (typeof w === 'function') return w(st, hlvState()); return false; }
+function hTaskDone(o) { const st = host(o.id), w = hTaskWhen(o); if (w === 'taken') return st.s === 'taken'; if (w === 'solved') return ['solved', 'open', 'on'].includes(st.s); if (w === 'open') return st.s === 'open' || !!st.entered; if (w === 'opened') return !!st.opened || st.s === 'open'; if (w === 'held') { const g = hHoldGroup(o); return !!st.wasHeld || (!!g && g !== o && hDone(g.id)); } if (w === 'used') return !!st.used || ['open', 'solved'].includes(st.s); if (w === 'read') return !!st.read; if (w === 'seen') return !!st.seen; if (w === 'lit') return !!st.lit; if (typeof w === 'function') return w(st, hlvState()); return false; }
 function hTaskCount() { const ts = hTasks(); return { done: ts.filter(hTaskDone).length, total: ts.length }; }
 function hRefreshHud() {
   if (!HG.def) return; const tc = hTaskCount(); $('#h-title').textContent = `${HG.level}. ${HG.def.name}`; $('#h-tasks').textContent = `${tc.done}/${tc.total}`;
@@ -4346,7 +4349,7 @@ function hRefreshSheet(force) {
     if (o.action && !solved && (!o.action.showIf || o.action.showIf(st, hlvState()))) acts.push(`<button type="button" data-a="act">${esc(o.action.label)}</button>`);
     if (o.climb && (!o.climb.if || o.climb.if(st, hlvState()))) acts.push(`<button type="button" data-a="climb">${esc(o.climb.label || 'Climb up')}</button>`);
     (o.acts || []).forEach((ac, i) => { if (!ac.showIf || ac.showIf(st, hlvState())) acts.push(`<button type="button" class="${ac.sec ? 'sec' : ''}" data-a="x" data-i="${i}">${esc(ac.label)}</button>`); });
-    if (o.door && st.s === 'open') acts.push(`<button type="button" data-a="enter">${esc(o.enterText || 'Go through')}</button>`);
+    if (o.door && st.s === 'open') { acts.push(`<button type="button" data-a="enter">${esc(o.enterText || 'Go through')}</button>`); if (o.exit) { const n = hExitLeft(o).length; if (n) html += `<p class="hint" style="margin:6px 0 0">${hLeftText(n)} The list button shows what you have done.</p>`; } }
   }
   if (o.clue && unlocked && !HG.solo && hPartnerUid() && (!o.clueIf || o.clueIf(st))) acts.push(`<button type="button" class="share" data-a="share">Share with ${esc(hPartnerName())}</button>`);
   html += widget;
@@ -4382,7 +4385,7 @@ async function hSheetAct(o, b) {
   if (a === 'act') { const ac = o.action; if (ac.needsHold && !ac.needsHold.every(id => hHeldFresh(id).length)) { hFeedback(ac.hint || 'Not on your own.', 'no'); return; } const upd = {}; if (ac.solve !== false) upd[`${L}/s`] = 'solved'; happly(ac.effects, o, upd); await hcommit(upd, ac.art); if (ac.text) hFeedback(ac.text, 'ok'); return; }
   if (a === 'climb') { hClimb(o); return; }
   if (a === 'x') { const ac = o.acts[+b.dataset.i]; if (ac.needsHold && !ac.needsHold.every(id => hHeldFresh(id).length)) { hFeedback(ac.hint || 'Not on your own.', 'no'); return; } const upd = {}; happly(ac.effects, o, upd); if (ac.run) ac.run(o, upd); if (Object.keys(upd).length) await hcommit(upd, ac.art); if (ac.text) hFeedback(typeof ac.text === 'function' ? ac.text(host(o.id)) : ac.text, 'ok'); if (ac.close) closeSheet3(); return; }
-  if (a === 'enter') { const upd = { [`${L}/entered`]: true }; if (o.exit) upd._complete = true; closeSheet3(); await hcommit(upd); return; }
+  if (a === 'enter') { if (o.exit) { const n = hExitLeft(o).length; if (n) { hFeedback(`Not yet. ${hLeftText(n)}`, 'no'); hsfx.wrong(); return; } } const upd = { [`${L}/entered`]: true }; if (o.exit) upd._complete = true; closeSheet3(); await hcommit(upd); return; }
   if (a === 'share') { const pu = hPartnerUid(); if (!pu) return; await HG.store.update({ [`players/${pu}/got/${HG.level}_${o.id}`]: { from: ctx.name || 'Your partner', at: Date.now() } }); hFeedback(`Sent to ${hPartnerName()}'s journal.`, 'ok'); hsfx.paper(); return; }
   if (a === 'hint') { hTakeHint(o); return; }
   if (a === 'hintshow') { HG.hintOpen = HG.hintOpen === o.id ? null : o.id; hRefreshSheet(true); }
@@ -5475,7 +5478,7 @@ function hCheckSync() {
   HG.def.objects.forEach(o => {
     if (!o.together || hDone(o.id)) return; if (!hUnlocked(o)) return;
     const need = HG.solo ? [o.together.find(id => hHeldFresh(id).length) || o.together[0]] : o.together;   // alone, either end will do
-    if (hAllHeldDistinct(need)) { const upd = { [`lv/${HG.level}/obj/${o.id}/s`]: 'solved' }; need.forEach(id => { upd[`lv/${HG.level}/obj/${id}/s`] = host(id).s || 'used'; }); happly(o.onSolve || [], o, upd); hcommit(upd, o.solvedText || 'Together!', 'good').then(() => hsfx.unlockBig()); }
+    if (hAllHeldDistinct(need)) { const upd = { [`lv/${HG.level}/obj/${o.id}/s`]: 'solved' }; need.forEach(id => { upd[`lv/${HG.level}/obj/${id}/s`] = host(id).s || 'used'; }); o.together.forEach(id => { upd[`lv/${HG.level}/obj/${id}/wasHeld`] = true; }); happly(o.onSolve || [], o, upd); hcommit(upd, o.solvedText || 'Together!', 'good').then(() => hsfx.unlockBig()); }
   });
 }
 /* ---- finishing a room ---- */
