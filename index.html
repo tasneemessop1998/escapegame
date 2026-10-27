@@ -2,7 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
-<meta name="build" content="2026.10.25-2352">
+<meta name="build" content="2026.10.27-1344">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="theme-color" content="#0d0b10">
@@ -318,7 +318,7 @@ body.haunt-mode #screen-lobby h3{color:#c9a24a;font-family:'IM Fell English',Geo
 #screen-haunt.typing .h-top .h-chatlog{display:none}
 #screen-haunt.typing .h-pad,#screen-haunt.typing .h-acts,#screen-haunt.typing .h-label{opacity:0;pointer-events:none}
 .h-taskbox{position:absolute;left:10px;top:calc(58px + env(safe-area-inset-top,0px));z-index:6;background:rgba(14,12,16,.94);border:1px solid var(--hline);border-radius:14px;padding:10px 12px;max-width:min(330px,82vw);font-size:.88rem}
-.h-taskbox ul{margin:6px 0 0;padding-left:18px;max-height:44vh;overflow:auto}.h-taskbox li.done{color:#9ad09a}.h-taskbox li.todo{color:#a89f90}
+.h-taskbox ul{margin:6px 0 0;padding-left:18px;max-height:44vh;overflow:auto}.h-taskbox li.done{color:#9ad09a}.h-taskbox li.todo{color:#a89f90}.h-taskbox li.todo.next{color:#e8c27a;font-weight:600}
 /* the panel for whatever you are looking at */
 .h-sheet{position:absolute;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));max-height:76vh;overflow:auto;z-index:20;background:linear-gradient(180deg,rgba(26,22,24,.97),rgba(14,12,14,.98));border:1px solid rgba(201,162,74,.35);border-radius:18px;padding:14px;box-shadow:0 20px 60px rgba(0,0,0,.7);animation:sheetUp .3s cubic-bezier(.2,.9,.3,1.1) both}
 @media (min-width:700px){.h-sheet{left:50%;right:auto;transform:translateX(-50%);width:560px}}
@@ -583,7 +583,7 @@ body.haunt-mode #screen-lobby h3{color:#c9a24a;font-family:'IM Fell English',Geo
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="firebase-config.js"></script>
 <script>
-const BUILD = '2026.10.25-2352';
+const BUILD = '2026.10.27-1344';
 (() => {
 'use strict';
 const VERSION = '2.0';
@@ -4388,7 +4388,9 @@ function hClockTick() { if (!HG.run || !HG.ready) return; const st = hlvState();
 function hTasks() { return (HG.def ? HG.def.objects : []).filter(o => o.task); }
 // what is still to do before the way out will let you through (alone in a two-person run, the other side's own things are not asked of you)
 function hExitLeft(exit) { const lone = !HG.solo && !hPartnerUid(); return hTasks().filter(t => t !== exit && !hTaskDone(t) && !(lone && t.visibleTo && t.visibleTo !== HG.seat)); }
-const hLeftText = n => n === 1 ? 'There is still one thing in this room to find or do.' : `There are still ${n} things in this room to find or do.`;
+// down to the last one or two, they are named: a count alone leaves you searching the whole room for one small thing
+const hLeftName = t => t.task + (t.visibleTo && !HG.solo && t.visibleTo !== HG.seat ? ` (only ${hSeatName(t.visibleTo)} can see it)` : '');
+const hLeftText = (n, left) => left && left.length && left.length <= 2 ? `Still to do: ${left.map(hLeftName).join('; ')}.` : n === 1 ? 'There is still one thing in this room to find or do.' : `There are still ${n} things in this room to find or do.`;
 function hTaskWhen(o) { if (o.taskWhen) return o.taskWhen; if (o.take || o.gift || o.kit) return 'taken'; if (o.lock || o.mini || o.together || o.action) return 'solved'; if (o.door) return 'open'; if (o.open) return 'opened'; if (o.hold) return 'held'; if (o.use) return 'used'; return 'read'; }
 function hTaskDone(o) { const st = host(o.id), w = hTaskWhen(o); if (w === 'taken') return st.s === 'taken'; if (w === 'solved') return ['solved', 'open', 'on'].includes(st.s); if (w === 'open') return st.s === 'open' || !!st.entered; if (w === 'opened') return !!st.opened || st.s === 'open'; if (w === 'held') { const g = hHoldGroup(o); return !!st.wasHeld || (!!g && g !== o && hDone(g.id)); } if (w === 'used') return !!st.used || ['open', 'solved'].includes(st.s); if (w === 'read') return !!st.read; if (w === 'seen') return !!st.seen; if (w === 'lit') return !!st.lit; if (typeof w === 'function') return w(st, hlvState()); return false; }
 function hTaskCount() { const ts = hTasks(); return { done: ts.filter(hTaskDone).length, total: ts.length }; }
@@ -4401,8 +4403,8 @@ function hRefreshHud() {
 }
 function hTaskBox() {
   const tb = $('#h-taskbox'); if (!tb.classList.contains('hidden')) { tb.classList.add('hidden'); return; }
-  const ts = hTasks(), done = ts.filter(hTaskDone), todo = ts.length - done.length, sat = hSatchelList();
-  tb.innerHTML = `<b>${esc(HG.def.name)}</b> · ${done.length} of ${ts.length}<ul>${done.map(o => `<li class="done">${esc(o.task)}</li>`).join('')}${todo ? `<li class="todo">${todo} more to find or solve</li>` : ''}</ul>${HG.def.goal ? `<p class="sub" style="margin-top:6px">${esc(HG.def.goal)}</p>` : ''}${sat.length ? `<p class="sub">In the satchel: ${sat.map(k => esc((HGIFTS[k] || { name: k }).name)).join(', ')}</p>` : ''}`;
+  const ts = hTasks(), done = ts.filter(hTaskDone), left = ts.filter(o => !hTaskDone(o)), todo = left.length, named = todo > 0 && todo <= 2, sat = hSatchelList();
+  tb.innerHTML = `<b>${esc(HG.def.name)}</b> · ${done.length} of ${ts.length}<ul>${named ? left.map(o => `<li class="todo next">Still to do: ${esc(hLeftName(o))}</li>`).join('') : ''}${done.map(o => `<li class="done">${esc(o.task)}</li>`).join('')}${todo && !named ? `<li class="todo">${todo} more to find or solve</li>` : ''}</ul>${HG.def.goal ? `<p class="sub" style="margin-top:6px">${esc(HG.def.goal)}</p>` : ''}${sat.length ? `<p class="sub">In the satchel: ${sat.map(k => esc((HGIFTS[k] || { name: k }).name)).join(', ')}</p>` : ''}`;
   tb.classList.remove('hidden'); setTimeout(() => tb.classList.add('hidden'), 9000);
 }
 function setFocus(oid, reach) {
@@ -4464,7 +4466,7 @@ function hRefreshSheet(force) {
     if (o.action && !solved && (!o.action.showIf || o.action.showIf(st, hlvState()))) acts.push(`<button type="button" data-a="act">${esc(o.action.label)}</button>`);
     if (o.climb && (!o.climb.if || o.climb.if(st, hlvState()))) acts.push(`<button type="button" data-a="climb">${esc(o.climb.label || 'Climb up')}</button>`);
     (o.acts || []).forEach((ac, i) => { if (!ac.showIf || ac.showIf(st, hlvState())) acts.push(`<button type="button" class="${ac.sec ? 'sec' : ''}" data-a="x" data-i="${i}">${esc(ac.label)}</button>`); });
-    if (o.door && st.s === 'open') { acts.push(`<button type="button" data-a="enter">${esc(o.enterText || 'Go through')}</button>`); if (o.exit) { const n = hExitLeft(o).length; if (n) html += `<p class="hint" style="margin:6px 0 0">${hLeftText(n)} The list button shows what you have done.</p>`; } }
+    if (o.door && st.s === 'open') { acts.push(`<button type="button" data-a="enter">${esc(o.enterText || 'Go through')}</button>`); if (o.exit) { const left = hExitLeft(o), n = left.length; if (n) html += `<p class="hint" style="margin:6px 0 0">${esc(hLeftText(n, left))}${n > 2 ? ' The list button shows what you have done.' : ''}</p>`; } }
   }
   if (o.clue && unlocked && !HG.solo && hPartnerUid() && (!o.clueIf || o.clueIf(st))) acts.push(`<button type="button" class="share" data-a="share">Share with ${esc(hPartnerName())}</button>`);
   html += widget;
@@ -4500,7 +4502,7 @@ async function hSheetAct(o, b) {
   if (a === 'act') { const ac = o.action; if (ac.showIf && !ac.showIf(host(o.id), hlvState())) { hFeedback('Not any more.', 'no'); hRefreshSheet(true); return; } if (ac.needsHold && !ac.needsHold.every(id => hHeldFresh(id).length)) { hFeedback(ac.hint || 'Not on your own.', 'no'); return; } const upd = {}; if (ac.solve !== false) upd[`${L}/s`] = 'solved'; happly(ac.effects, o, upd); await hcommit(upd, ac.art); if (ac.text) hFeedback(ac.text, 'ok'); return; }
   if (a === 'climb') { hClimb(o); return; }
   if (a === 'x') { const ac = o.acts[+b.dataset.i]; if (!ac || (ac.showIf && !ac.showIf(host(o.id), hlvState()))) { hFeedback('Not any more.', 'no'); hRefreshSheet(true); return; } if (ac.needsHold && !ac.needsHold.every(id => hHeldFresh(id).length)) { hFeedback(ac.hint || 'Not on your own.', 'no'); return; } const upd = {}; happly(ac.effects, o, upd); if (ac.run) ac.run(o, upd); if (Object.keys(upd).length) await hcommit(upd, ac.art); if (ac.text) hFeedback(typeof ac.text === 'function' ? ac.text(host(o.id)) : ac.text, 'ok'); if (ac.close) closeSheet3(); return; }
-  if (a === 'enter') { if (o.exit) { const n = hExitLeft(o).length; if (n) { hFeedback(`Not yet. ${hLeftText(n)}`, 'no'); hsfx.wrong(); return; } } const upd = { [`${L}/entered`]: true }; if (o.exit) upd._complete = true; closeSheet3(); await hcommit(upd); return; }
+  if (a === 'enter') { if (o.exit) { const left = hExitLeft(o); if (left.length) { hFeedback(`Not yet. ${hLeftText(left.length, left)}`, 'no'); hsfx.wrong(); return; } } const upd = { [`${L}/entered`]: true }; if (o.exit) upd._complete = true; closeSheet3(); await hcommit(upd); return; }
   if (a === 'share') { const pu = hPartnerUid(); if (!pu) return; await HG.store.update({ [`players/${pu}/got/${HG.level}_${o.id}`]: { from: ctx.name || 'Your partner', at: Date.now() } }); hFeedback(`Sent to ${hPartnerName()}'s journal.`, 'ok'); hsfx.paper(); return; }
   if (a === 'hint') { hTakeHint(o); return; }
   if (a === 'hintshow') { HG.hintOpen = HG.hintOpen === o.id ? null : o.id; hRefreshSheet(true); }
@@ -7506,7 +7508,7 @@ else {
 }
 // Debug handle for the browser console and the test harness.
 window.Marvello = { G, ctx, ROOMS, ITEMS, H, enterSolo: () => enterRun(makeSoloStore(), true), openSheet, tryLock, sheetAct, walkTo: (x, y) => { G.target = { x, y }; }, teleport: (x, y) => { G.me.x = x; G.me.y = y; G.target = null; }, vis, ost, tasks, taskCount, taskDone, lvState, partnerHere, partnerUid, startHold, stopHold, loadLevel, commit, applyEffects, prefs, render };
-window.Haunt = { HG, hsfx, HROOMS, HITEMS, HGIFTS, MINI, H, prefs, ctx, enterSolo: () => hEnter(makeHauntSolo(), true), openThing, hSheetAct, hTryLock, hRefreshSheet, closeSheet3, hvis, host, hDone, hlvState, hTaskCount, hTaskDone, hTasks, hcommit, happly, hStartHold, hStopHold, hCheckSync, hPlayScene, hSeen, hScare, hLoadLevel, openInspect, closeInspect, hItemMenu, openJournal, hInv, hKit, hSatchel, hUnlocked, setFocus, tapAt, hSendChat, hLeave, hPartnerUid, hPlayers, updatePlayer, moveWithCollisions, blocked, torchColor, hSync3D, hScenesCheck, hClimb, hClimbDown, hRenderInv, inReach, hHeldFresh, hNow, HDIARY, hDiary, hDiaryHTML, hDiaryCount, hDiarySeen, hDiaryClose, hClockStep, hSatchelList, hWireLock, hSeen, hMarkDone, hEndScene, openInspect, closeInspect, hInspectRoot, hHoldStatus, inReach, hRoomDone, hFinale, makeHauntSolo, hPickHit, hInside, hEyeY, REACH, EYE, PLAYER_R };
+window.Haunt = { HG, hsfx, HROOMS, HITEMS, HGIFTS, MINI, H, prefs, ctx, enterSolo: () => hEnter(makeHauntSolo(), true), openThing, hSheetAct, hTryLock, hRefreshSheet, closeSheet3, hvis, host, hDone, hlvState, hTaskCount, hTaskDone, hTasks, hcommit, happly, hStartHold, hStopHold, hCheckSync, hPlayScene, hSeen, hScare, hLoadLevel, openInspect, closeInspect, hItemMenu, openJournal, hInv, hKit, hSatchel, hUnlocked, setFocus, tapAt, hSendChat, hLeave, hPartnerUid, hPlayers, updatePlayer, moveWithCollisions, blocked, torchColor, hSync3D, hScenesCheck, hClimb, hClimbDown, hRenderInv, inReach, hHeldFresh, hNow, HDIARY, hDiary, hDiaryHTML, hDiaryCount, hDiarySeen, hDiaryClose, hTaskWhen, hTaskBox, hLeftText, hExitLeft, hClockStep, hSatchelList, hWireLock, hSeen, hMarkDone, hEndScene, openInspect, closeInspect, hInspectRoot, hHoldStatus, inReach, hRoomDone, hFinale, makeHauntSolo, hPickHit, hInside, hEyeY, REACH, EYE, PLAYER_R };
 })();
 
 </script>
